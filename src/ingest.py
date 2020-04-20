@@ -1,3 +1,8 @@
+# ##################################################################################### #
+# ISIS File Polling Repository : https://github.com/ISISSoftwareServices/ISISFilePolling
+#
+# Copyright &copy; 2020 ISIS Rutherford Appleton Laboratory UKRI
+# ##################################################################################### #
 """
 End of run monitor. Detects new runs that arrive and
 sends them off to the autoreduction service.
@@ -8,26 +13,25 @@ import logging
 import os
 import json
 import h5py
-from filelock import (FileLock, Timeout)
+from filelock import FileLock, Timeout
 
-from monitors.settings import (LAST_RUNS_CSV, CYCLE_FOLDER)
+from src.message_broker import MessageBrokerClient
 
-from utils.clients.queue_client import QueueClient
-from utils.project.structure import get_log_file
-from utils.project.static_content import LOG_FORMAT
+from src.settings import CYCLE_FOLDER
+from src.logs import LOG_FORMAT, INGEST_LOG_LOCATION, LOCAL_CACHE_LOCATION
 
 # Setup logging
-EORM_LOG = logging.getLogger('run_detection')
-EORM_LOG.setLevel(logging.INFO)
+INGEST_LOG = logging.getLogger('ingest')
+INGEST_LOG.setLevel(logging.INFO)
 
-FH = logging.FileHandler(get_log_file('run_detection.log'))
+FH = logging.FileHandler(INGEST_LOG_LOCATION)
 CH = logging.StreamHandler()
 FORMATTER = logging.Formatter(LOG_FORMAT)
 FH.setFormatter(FORMATTER)
 FH.setFormatter(FORMATTER)
 
-EORM_LOG.addHandler(FH)
-EORM_LOG.addHandler(CH)
+INGEST_LOG.addHandler(FH)
+INGEST_LOG.addHandler(CH)
 
 
 class InstrumentMonitorError(Exception):
@@ -142,7 +146,7 @@ class InstrumentMonitor:
             rb_number = read_rb_number_from_nexus_file(file_path)
             if rb_number is None:
                 rb_number = summary_rb_number
-            EORM_LOG.info("Submitting '%s' with RB number '%s'", file_name, rb_number)
+            INGEST_LOG.info("Submitting '%s' with RB number '%s'", file_name, rb_number)
             data_dict = self.build_dict(rb_number, run_number, file_path)
             self.client.send('/queue/DataReady', json.dumps(data_dict), priority='9')
         else:
@@ -164,10 +168,10 @@ class InstrumentMonitor:
         summary_rb_number = self.read_rb_number_from_summary()
         zeros = get_prefix_zeros(instrument_last_run)
         if instrument_run_int > local_run_int:
-            EORM_LOG.info("Submitting runs in range %i - %i for %s",
-                          local_run_int,
-                          instrument_run_int,
-                          self.instrument_name)
+            INGEST_LOG.info("Submitting runs in range %i - %i for %s",
+                            local_run_int,
+                            instrument_run_int,
+                            self.instrument_name)
             for i in range(local_run_int + 1, instrument_run_int + 1):
                 # Construct the file name and run number
                 run_number = zeros + str(i)
@@ -177,7 +181,7 @@ class InstrumentMonitor:
                 except FileNotFoundError as ex:
                     # If the file isn't found then just return the last file sent
                     # and try again next time
-                    EORM_LOG.error(ex)
+                    INGEST_LOG.error(ex)
                     return str(i - 1)
         return str(instrument_run_int)
 
@@ -188,7 +192,7 @@ def update_last_runs(csv_name):
     instrument lastrun.txt
     :param csv_name: File name of the local last runs CSV file
     """
-    connection = QueueClient()
+    connection = MessageBrokerClient()
 
     # Loop over instruments
     output = []
@@ -205,7 +209,7 @@ def update_last_runs(csv_name):
                 last_run = inst_mon.submit_run_difference(row[1])
                 row[1] = last_run
             except InstrumentMonitorError as ex:
-                EORM_LOG.error(ex)
+                INGEST_LOG.error(ex)
             output.append(row)
 
     # Write any changes to the CSV
@@ -217,16 +221,16 @@ def update_last_runs(csv_name):
 
 def main():
     """
-    EoRM entry point
+    Ingestion Entry point
     """
     # Acquire a lock on the last runs CSV file to prevent access
     # by other instances of this script
     try:
-        with FileLock("{}.lock".format(LAST_RUNS_CSV), timeout=1):
-            update_last_runs(LAST_RUNS_CSV)
+        with FileLock("{}.lock".format(LOCAL_CACHE_LOCATION), timeout=1):
+            update_last_runs(LOCAL_CACHE_LOCATION)
     except Timeout:
-        EORM_LOG.error(("Error acquiring lock on last runs CSV."
-                        " There may be another instance running."))
+        INGEST_LOG.error(("Error acquiring lock on last runs CSV."
+                          " There may be another instance running."))
 
 
 if __name__ == '__main__':

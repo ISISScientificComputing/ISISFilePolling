@@ -1,18 +1,23 @@
+# ##################################################################################### #
+# ISIS File Polling Repository : https://github.com/ISISSoftwareServices/ISISFilePolling
+#
+# Copyright &copy; 2020 ISIS Rutherford Appleton Laboratory UKRI
+# ##################################################################################### #
 """
-Unit tests for the end of run monitor
+Unit tests for ingest
 """
 import unittest
 import os
 import json
 import csv
 from filelock import FileLock
-from mock import (Mock, patch, call)
+from mock import Mock, patch, call
 
-from utils.clients.queue_client import QueueClient
-from monitors.settings import (CYCLE_FOLDER, LAST_RUNS_CSV)
-import monitors.run_detection as eorm
-from monitors.run_detection import (InstrumentMonitor,
-                                    InstrumentMonitorError)
+from src.message_broker import MessageBrokerClient
+from src.settings import CYCLE_FOLDER
+import src.ingest as ingest
+from src.ingest import InstrumentMonitor, InstrumentMonitorError
+from src.logs import LOCAL_CACHE_LOCATION
 
 # Test data
 SUMMARY_FILE = ("WIS44731Smith,Smith,"
@@ -72,17 +77,17 @@ class TestRunDetection(unittest.TestCase):
 
     def test_get_prefix_zeros(self):
         run_number = '00012345'
-        zeros = eorm.get_prefix_zeros(run_number)
+        zeros = ingest.get_prefix_zeros(run_number)
         self.assertEqual('000', zeros)
 
     def test_get_prefix_zeros_no_zeros(self):
         run_number = '12345'
-        zeros = eorm.get_prefix_zeros(run_number)
+        zeros = ingest.get_prefix_zeros(run_number)
         self.assertEqual('', zeros)
 
     def test_get_prefix_zeros_all_zeros(self):
         run_number = '00000'
-        zeros = eorm.get_prefix_zeros(run_number)
+        zeros = ingest.get_prefix_zeros(run_number)
         self.assertEqual(run_number, zeros)
 
     def test_read_instrument_last_run(self):
@@ -125,7 +130,7 @@ class TestRunDetection(unittest.TestCase):
         self.assertRaises(InstrumentMonitorError, inst_mon.read_rb_number_from_summary)
 
     def test_build_dict(self):
-        client = QueueClient()
+        client = MessageBrokerClient()
         inst_mon = InstrumentMonitor(client, 'WISH')
         data_loc = '/my/data/dir/cycle_18_4/WISH00044733.nxs'
         rb_number = '1820461'
@@ -134,8 +139,7 @@ class TestRunDetection(unittest.TestCase):
         self.assertEqual(RUN_DICT, data_dict)
 
     @patch('os.path.isfile', return_value=True)
-    @patch('monitors.run_detection.read_rb_number_from_nexus_file',
-           return_value='1820461')
+    @patch('src.ingest.read_rb_number_from_nexus_file', return_value='1820461')
     def test_submit_run(self, read_rb_mock, isfile_mock):
         client = Mock()
         client.send = Mock(return_value=None)
@@ -164,8 +168,7 @@ class TestRunDetection(unittest.TestCase):
         isfile_mock.assert_called_with(data_loc)
 
     @patch('os.path.isfile', return_vaule=True)
-    @patch('monitors.run_detection.read_rb_number_from_nexus_file',
-           return_value=None)
+    @patch('src.ingest.read_rb_number_from_nexus_file', return_value=None)
     def test_submit_run_invalid_nexus(self, read_rb_mock, isfile_mock):
         client = Mock()
         client.send = Mock(return_value=None)
@@ -182,23 +185,23 @@ class TestRunDetection(unittest.TestCase):
         isfile_mock.assert_called_with(data_loc)
         read_rb_mock.assert_called_once_with(data_loc)
 
-    @patch('monitors.run_detection.h5py.File', return_value=NXLOAD_MOCK)
+    @patch('src.ingest.h5py.File', return_value=NXLOAD_MOCK)
     def test_read_rb_number_from_nexus(self, nxload_mock):
-        rb_num = eorm.read_rb_number_from_nexus_file('mynexus.nxs')
+        rb_num = ingest.read_rb_number_from_nexus_file('mynexus.nxs')
         self.assertEqual(rb_num, '1910232')
         kwargs = {"mode": "r"}
         nxload_mock.assert_called_once_with('mynexus.nxs', **kwargs)
 
-    @patch('monitors.run_detection.h5py.File', return_value=NXLOAD_MOCK_EMPTY)
+    @patch('src.ingest.h5py.File', return_value=NXLOAD_MOCK_EMPTY)
     def test_read_rb_number_from_nexus_invalid(self, nxload_mock):
-        rb_num = eorm.read_rb_number_from_nexus_file('mynexus.nxs')
+        rb_num = ingest.read_rb_number_from_nexus_file('mynexus.nxs')
         self.assertIsNone(rb_num)
         kwargs = {"mode": "r"}
         nxload_mock.assert_called_once_with('mynexus.nxs', **kwargs)
 
-    @patch('monitors.run_detection.h5py.File', side_effect=IOError('HDF4 file'))
+    @patch('src.ingest.h5py.File', side_effect=IOError('HDF4 file'))
     def test_read_rb_number_from_nexus_hdf4(self, nxload_mock):
-        rb_num = eorm.read_rb_number_from_nexus_file('mynexus.nxs')
+        rb_num = ingest.read_rb_number_from_nexus_file('mynexus.nxs')
         self.assertIsNone(rb_num)
         kwargs = {"mode": "r"}
         nxload_mock.assert_called_once_with('mynexus.nxs', **kwargs)
@@ -233,17 +236,15 @@ class TestRunDetection(unittest.TestCase):
         run_number = inst_mon.submit_run_difference(44731)
         self.assertEqual(run_number, '44731')
 
-    @patch('monitors.run_detection.InstrumentMonitor.__init__',
-           return_value=None)
-    @patch('monitors.run_detection.InstrumentMonitor.submit_run_difference',
-           return_value='44736')
+    @patch('src.ingest.InstrumentMonitor.__init__', return_value=None)
+    @patch('src.ingest.InstrumentMonitor.submit_run_difference', return_value='44736')
     def test_update_last_runs(self, run_diff_mock, inst_mon_mock):
         # Setup test
         with open('test_last_runs.csv', 'w') as last_runs:
             last_runs.write(CSV_FILE)
 
         # Perform test
-        eorm.update_last_runs('test_last_runs.csv')
+        ingest.update_last_runs('test_last_runs.csv')
         inst_mon_mock.assert_called()
         run_diff_mock.assert_called_with('44733')
 
@@ -254,9 +255,8 @@ class TestRunDetection(unittest.TestCase):
                 if row:  # Avoid the empty rows
                     self.assertEqual('44736', row[1])
 
-    @patch('monitors.run_detection.InstrumentMonitor.__init__',
-           return_value=None)
-    @patch('monitors.run_detection.InstrumentMonitor.submit_run_difference',
+    @patch('src.ingest.InstrumentMonitor.__init__', return_value=None)
+    @patch('src.ingest.InstrumentMonitor.submit_run_difference',
            side_effect=InstrumentMonitorError('Error'))
     def test_update_last_runs_with_error(self, run_diff_mock, inst_mon_mock):
         # Setup test
@@ -264,7 +264,7 @@ class TestRunDetection(unittest.TestCase):
             last_runs.write(CSV_FILE)
 
         # Perform test
-        eorm.update_last_runs('test_last_runs.csv')
+        ingest.update_last_runs('test_last_runs.csv')
         inst_mon_mock.assert_called()
         run_diff_mock.assert_called_with('44733')
 
@@ -275,13 +275,13 @@ class TestRunDetection(unittest.TestCase):
                 if row:  # Avoid the empty rows
                     self.assertEqual('44733', row[1])
 
-    @patch('monitors.run_detection.update_last_runs')
+    @patch('monitors.ingest.update_last_runs')
     def test_main(self, update_last_runs_mock):
-        eorm.main()
-        update_last_runs_mock.assert_called_with(LAST_RUNS_CSV)
+        ingest.main()
+        update_last_runs_mock.assert_called_with(LOCAL_CACHE_LOCATION)
         update_last_runs_mock.assert_called_once()
 
-    @patch('monitors.run_detection.update_last_runs')
+    @patch('monitors.ingest.update_last_runs')
     def test_main_lock_timeout(self, _):
-        with FileLock('{}.lock'.format(LAST_RUNS_CSV)):
-            eorm.main()
+        with FileLock('{}.lock'.format(LOCAL_CACHE_LOCATION)):
+            ingest.main()
