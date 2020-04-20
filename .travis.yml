@@ -1,0 +1,23 @@
+sudo: required
+language: python
+python:
+  - "3.7"
+
+dist: xenial
+
+install:
+  # Install autoreduction
+  - pip3 install -e .
+  # Install test suite dependencies
+  - pip3 install -r requirements.txt
+
+script:
+  # ================ Functional tests =============== #
+  - echo "Running Unit tests"
+  - py.test --cov=src
+
+  # ================ Static Analysis ================= #
+  - pylint src
+
+after_success:
+  - coveralls
