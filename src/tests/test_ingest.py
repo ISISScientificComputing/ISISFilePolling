@@ -275,13 +275,13 @@ class TestRunDetection(unittest.TestCase):
                 if row:  # Avoid the empty rows
                     self.assertEqual('44733', row[1])
 
-    @patch('monitors.ingest.update_last_runs')
+    @patch('src.ingest.update_last_runs')
     def test_main(self, update_last_runs_mock):
         ingest.main()
         update_last_runs_mock.assert_called_with(LOCAL_CACHE_LOCATION)
         update_last_runs_mock.assert_called_once()
 
-    @patch('monitors.ingest.update_last_runs')
+    @patch('src.ingest.update_last_runs')
     def test_main_lock_timeout(self, _):
         with FileLock('{}.lock'.format(LOCAL_CACHE_LOCATION)):
             ingest.main()

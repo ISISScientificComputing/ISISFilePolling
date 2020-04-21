@@ -1,9 +1,8 @@
-# ############################################################################### #
-# Autoreduction Repository : https://github.com/ISISScientificComputing/autoreduce
+# ##################################################################################### #
+# ISIS File Polling Repository : https://github.com/ISISSoftwareServices/ISISFilePolling
 #
-# Copyright &copy; 2019 ISIS Rutherford Appleton Laboratory UKRI
-# SPDX - License - Identifier: GPL-3.0-or-later
-# ############################################################################### #
+# Copyright &copy; 2020 ISIS Rutherford Appleton Laboratory UKRI
+# ##################################################################################### #
 """
 Client class for accessing queuing service
 """
@@ -95,7 +94,7 @@ class MessageBrokerClient:
         logging.info("Successfully subscribed to all of the queues")
 
     @staticmethod
-    def serialise_data(rb_number, instrument, location, run_number):
+    def serialise_data(rb_number, instrument, location, run_number, started_by):
         """
         Packs the specified data into a dictionary ready to send to a processor queue
         """
@@ -103,6 +102,7 @@ class MessageBrokerClient:
                 'instrument': instrument,
                 'data': location,
                 'run_number': run_number,
+                'started_by': started_by,
                 'facility': 'ISIS'}
 
     # pylint:disable=too-many-arguments
