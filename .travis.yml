@@ -5,11 +5,6 @@ python:
 
 dist: xenial
 
-addons:
-  apt:
-    packages:
-    - activemq
-
 install:
   # Install autoreduction
   - pip3 install -e .
@@ -18,8 +13,6 @@ install:
 
 before_script:
   # Migrate test settings
-  - /usr/bin/activemq start &
-  - sleep 5  # Sleep to give AMQ enough time to start up
   - python3 src/build_config/setup_tests.py
 
 script:

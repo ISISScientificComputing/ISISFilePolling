@@ -14,7 +14,5 @@ from shutil import copyfile
 TEST_SETTINGS_FILE = os.path.abspath(test_settings.__file__)
 DESTINATION = os.path.join(os.path.dirname(TEST_SETTINGS_FILE), 'settings.py')
 
-print(TEST_SETTINGS_FILE)
-print(DESTINATION)
 
 copyfile(TEST_SETTINGS_FILE, DESTINATION)

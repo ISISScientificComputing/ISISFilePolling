@@ -78,19 +78,6 @@ class MessageBrokerClient:
             self._connection = connection
         return self._connection
 
-    def subscribe_queues(self, queue_list, consumer_name, listener, ack='auto'):
-        """
-        Subscribe a listener to the provided queues
-        """
-        self._connection.set_listener(consumer_name, listener)
-        for queue in queue_list:
-            self._connection.subscribe(destination=queue,
-                                       id='1',
-                                       ack=ack,
-                                       header={'activemq.prefetchSize': '1'})
-            logging.info("[%s] Subscribing to %s", consumer_name, queue)
-        logging.info("Successfully subscribed to all of the queues")
-
     @staticmethod
     def serialise_data(rb_number, instrument, location, run_number, started_by):
         """
@@ -114,7 +101,8 @@ class MessageBrokerClient:
         :param delay: time to wait before send
         """
         self.connect()
-        self._connection.send(destination, message,
+        self._connection.send(destination=destination,
+                              message=message,
                               persistent=persistent,
                               priority=priority,
                               delay=delay)
