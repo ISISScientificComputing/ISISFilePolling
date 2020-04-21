@@ -54,7 +54,6 @@ class MessageBrokerClient:
         logging.info("Disconnecting from activemq")
         if self._connection is not None and self._connection.is_connected():
             self._connection.disconnect()
-            self._connection.stop()
         self._connection = None
 
     def _create_connection(self):
@@ -68,7 +67,6 @@ class MessageBrokerClient:
                 connection = stomp.Connection(host_and_ports=host_port,
                                               use_ssl=False)
                 logging.info("Starting connection to %s", host_port)
-                connection.start()
                 connection.connect(username=self._user,
                                    passcode=self._pass,
                                    wait=False,

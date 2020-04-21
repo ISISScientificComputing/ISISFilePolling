@@ -5,11 +5,23 @@ python:
 
 dist: xenial
 
+addons:
+  apt:
+    packages:
+    - activemq
+
 install:
   # Install autoreduction
   - pip3 install -e .
   # Install test suite dependencies
   - pip3 install -r requirements.txt
+
+before_script:
+  # Migrate test settings
+  - ls /opt/
+  - ls /opt/activemq
+  - ls /opt/activemq/bin
+  - python3 src/build_config/setup_tests.py
 
 script:
   # ================ Functional tests =============== #

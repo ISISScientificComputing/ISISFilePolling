@@ -3,6 +3,9 @@
 #
 # Copyright &copy; 2020 ISIS Rutherford Appleton Laboratory UKRI
 # ##################################################################################### #
+"""
+Variables that point to the log file locations
+"""
 import os
 LOG_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
