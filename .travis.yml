@@ -18,9 +18,8 @@ install:
 
 before_script:
   # Migrate test settings
-  - ls /opt/
-  - ls /opt/activemq
-  - ls /opt/activemq/bin
+  - /usr/bin/activemq start &
+  - sleep 5  # Sleep to give AMQ enough time to start up
   - python3 src/build_config/setup_tests.py
 
 script:
