@@ -5,7 +5,7 @@
 # ##################################################################################### #
 """
 Test functionality for the message broker
-Note this does not require an AMQ instance to running, all connection calls are mocked
+Note: this does not require an AMQ instance to run, all connection calls are mocked
 """
 import unittest
 
@@ -15,10 +15,10 @@ from stomp.exception import ConnectFailedException
 from src.message_broker import MessageBrokerClient
 
 
-# pylint:disable=protected-access,invalid-name,missing-docstring
-class TestQueueClient(unittest.TestCase):
+# pylint:disable=protected-access,invalid-name
+class TestMessageBrokerClient(unittest.TestCase):
     """
-    Exercises the queue client
+    Exercises the MessageBrokerClient with a Mocked AMQ connection
     """
 
     @staticmethod
@@ -66,7 +66,8 @@ class TestQueueClient(unittest.TestCase):
     def test_connect_when_connection_is_none(self, mock_disconnect, mock_create_connection):
         """
         Test: _create_connection() is called within connect()
-        When: client._connection is None """
+        When: client._connection is None
+        """
         client = MessageBrokerClient()
         client._connection = None
         client.connect()
@@ -103,7 +104,10 @@ class TestQueueClient(unittest.TestCase):
         self.assertTrue(client._test_connection())
 
     def test_test_connection_when_disconnected(self):
-        """ Test that """
+        """
+        Test: _test_connection() raises a RuntimeError
+        When: client._connection is disconnected
+        """
         client, _ = self._create_client_with_connection(False)
         self.assertRaises(RuntimeError, client._test_connection)
 

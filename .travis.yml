@@ -13,7 +13,7 @@ install:
 
 before_script:
   # Migrate test settings
-  - python3 src/build_config/setup_tests.py
+  - python3 src/build_config/setup_test_environment.py
 
 script:
   # ================ Functional tests =============== #
