@@ -22,3 +22,6 @@ Requires: Python3.6+, ActiveMQ
 
 ### Running
 1. Setup a cron job to run `ISISFilePolling/src/ingest.py`
+
+### Development
+See documentation for developing here: [Developer docs](https://github.com/ISISSoftwareServices/ISISFilePolling/wiki/Developer-Docs)
