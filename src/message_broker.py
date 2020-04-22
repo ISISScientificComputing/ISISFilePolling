@@ -1,9 +1,8 @@
-# ############################################################################### #
-# Autoreduction Repository : https://github.com/ISISScientificComputing/autoreduce
+# ##################################################################################### #
+# ISIS File Polling Repository : https://github.com/ISISSoftwareServices/ISISFilePolling
 #
-# Copyright &copy; 2019 ISIS Rutherford Appleton Laboratory UKRI
-# SPDX - License - Identifier: GPL-3.0-or-later
-# ############################################################################### #
+# Copyright &copy; 2020 ISIS Rutherford Appleton Laboratory UKRI
+# ##################################################################################### #
 """
 Client class for accessing queuing service
 """
@@ -55,7 +54,6 @@ class MessageBrokerClient:
         logging.info("Disconnecting from activemq")
         if self._connection is not None and self._connection.is_connected():
             self._connection.disconnect()
-            self._connection.stop()
         self._connection = None
 
     def _create_connection(self):
@@ -69,7 +67,6 @@ class MessageBrokerClient:
                 connection = stomp.Connection(host_and_ports=host_port,
                                               use_ssl=False)
                 logging.info("Starting connection to %s", host_port)
-                connection.start()
                 connection.connect(username=self._user,
                                    passcode=self._pass,
                                    wait=False,
@@ -81,21 +78,8 @@ class MessageBrokerClient:
             self._connection = connection
         return self._connection
 
-    def subscribe_queues(self, queue_list, consumer_name, listener, ack='auto'):
-        """
-        Subscribe a listener to the provided queues
-        """
-        self._connection.set_listener(consumer_name, listener)
-        for queue in queue_list:
-            self._connection.subscribe(destination=queue,
-                                       id='1',
-                                       ack=ack,
-                                       header={'activemq.prefetchSize': '1'})
-            logging.info("[%s] Subscribing to %s", consumer_name, queue)
-        logging.info("Successfully subscribed to all of the queues")
-
     @staticmethod
-    def serialise_data(rb_number, instrument, location, run_number):
+    def serialise_data(rb_number, instrument, location, run_number, started_by):
         """
         Packs the specified data into a dictionary ready to send to a processor queue
         """
@@ -103,6 +87,7 @@ class MessageBrokerClient:
                 'instrument': instrument,
                 'data': location,
                 'run_number': run_number,
+                'started_by': started_by,
                 'facility': 'ISIS'}
 
     # pylint:disable=too-many-arguments
@@ -116,7 +101,8 @@ class MessageBrokerClient:
         :param delay: time to wait before send
         """
         self.connect()
-        self._connection.send(destination, message,
+        self._connection.send(destination=destination,
+                              body=message,
                               persistent=persistent,
                               priority=priority,
                               delay=delay)

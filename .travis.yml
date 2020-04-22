@@ -11,6 +11,10 @@ install:
   # Install test suite dependencies
   - pip3 install -r requirements.txt
 
+before_script:
+  # Migrate test settings
+  - python3 src/build_config/setup_test_environment.py
+
 script:
   # ================ Functional tests =============== #
   - echo "Running Unit tests"
