@@ -60,6 +60,7 @@ class TestQueueClient(unittest.TestCase):
         self.assertEqual(client._port, 'port')
         self.assertEqual(client._pass, 'pass')
 
+    # pylint:disable=no-self-use
     @patch('src.message_broker.MessageBrokerClient._create_connection')
     @patch('src.message_broker.MessageBrokerClient.disconnect')
     def test_connect_when_connection_is_none(self, mock_disconnect, mock_create_connection):
@@ -206,7 +207,7 @@ class TestQueueClient(unittest.TestCase):
         client.send('/dataready', 'test-message')
         expected = {
             'destination': '/dataready',
-            'message': 'test-message',
+            'body': 'test-message',
             'persistent': 'true',
             'priority': '4',
             'delay': None,

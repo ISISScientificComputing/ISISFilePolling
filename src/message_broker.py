@@ -102,7 +102,7 @@ class MessageBrokerClient:
         """
         self.connect()
         self._connection.send(destination=destination,
-                              message=message,
+                              body=message,
                               persistent=persistent,
                               priority=priority,
                               delay=delay)
