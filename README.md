@@ -11,8 +11,8 @@ Requires: Python3.6+, ActiveMQ
 
 1. `git clone https://github.com/ISISSoftwareServices/ISISFilePolling.git`
      1. Optionally setup a python virtualenv to manage package requirements 
-2. `pip3 install -e ISISFilePolling
-3. `pip3 install -r ISISFilePolling/requirements.txt
+2. `pip3 install -e ISISFilePolling`
+3. `pip3 install -r ISISFilePolling/requirements.txt`
 
 ### Configuration
 
