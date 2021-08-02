@@ -15,5 +15,9 @@ LOCAL_CACHE_LOCATION = os.path.join(AUTOREDUCE_HOME_ROOT, 'last_runs.csv')
 # Data Cache
 CYCLE_FOLDER = "cycle_22_1"
 
-AUTOREDUCE_API_URL = "http://reduce.isis.cclrc.ac.uk/api/runs/{instrument}/{start_run}/{end_run}"
+if "AUTOREDUCTION_PRODUCTION" in os.environ:
+    AUTOREDUCE_API_URL = "https://reduce.isis.cclrc.ac.uk/api/runs/{instrument}/{start_run}/{end_run}"
+else:
+    AUTOREDUCE_API_URL = "http://127.0.0.1:8000/api/runs/{instrument}/{start_run}/{end_run}"
+
 AUTOREDUCE_TOKEN = os.environ.get('AUTOREDUCE_TOKEN')
