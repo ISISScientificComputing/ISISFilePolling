@@ -141,6 +141,7 @@ class TestRunDetection(unittest.TestCase):
 
         # Perform test
         update_last_runs('test_last_runs.csv')
+        requests_post_mock.asssert_called_once()
 
         # Read the CSV and ensure it has been updated
         with open('test_last_runs.csv') as csv_file:
