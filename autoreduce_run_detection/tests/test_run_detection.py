@@ -74,6 +74,8 @@ class TestRunDetection(unittest.TestCase):
             os.remove('test_summary.txt')
         if os.path.isfile('test_last_runs.csv'):
             os.remove('test_last_runs.csv')
+        if os.path.isfile('lastrun_wish.txt'):
+            os.remove('lastrun_wish.txt')
 
     def test_read_instrument_last_run(self):
         with open('test_lastrun.txt', 'w') as last_run:
@@ -138,6 +140,10 @@ class TestRunDetection(unittest.TestCase):
         # Setup test
         with open('test_last_runs.csv', 'w') as last_runs:
             last_runs.write(CSV_FILE)
+
+        # write out the lastruns.txt file that would usually be on the archive
+        with open('lastrun_wish.txt', 'w') as lastrun_wish:
+            lastrun_wish.write(LASTRUN_WISH_TXT)
 
         # Perform test
         update_last_runs('test_last_runs.csv')
