@@ -1,0 +1,94 @@
+name: Tests
+on: [ push ]
+
+jobs:
+  pytest:
+    name: Pytest
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - uses: ISISScientificComputing/autoreduce-actions/build@master
+        with:
+          package_name: autoreduce_run_detection
+
+      - name: Run unit tests
+        run: >-
+          pytest --cov=autoreduce_run_detection --cov-report=xml autoreduce_run_detection
+
+      - uses: codecov/codecov-action@v1
+        with:
+          files: ./coverage.xml
+          name: codecov-umbrella
+          flags: backend
+          fail_ci_if_error: true
+          verbose: true
+
+
+  dependency-check:
+    name: Dependency-Check
+    runs-on: ubuntu-18.04
+    container: centos/python-36-centos7
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ job.container.image }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ job.container.image }}-pip-
+
+      - name: Pip install
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+  Inspection:
+    name: Code Inspection
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - uses: ISISScientificComputing/autoreduce-actions/build@master
+        with:
+          package_name: autoreduce_run_detection
+
+      - uses: ISISScientificComputing/autoreduce-actions/code_inspection@master
+        with:
+          package_name: autoreduce_run_detection
+
