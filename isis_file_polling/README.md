@@ -1,13 +1,13 @@
 # Run Detection *(Any Platform)*
 
-This module contains code for detecting new files from the ISIs Data Cache and  can be run on any platform either standalone on the command line or as a scheduled task. All it requires is a CSV file of the following format:
+This module contains code for detecting new files from the ISIS Data Cache and  can be run on any platform either standalone on the command line or as a scheduled task. All it requires is a CSV file of the following format:
 
 ```
 WISH,1234,wish_lastrun.txt,wish_summary.txt,/archive/wish/data,.nxs
 GEM,1234,gem_lastrun.txt,gem_summary.txt,/archive/gem/data,.nxs
 ```
 
-In order, the fields are: instrument name, last run number observed on the instrument 
+In order, the fields are: instrument name, last run number observed on the instrument
 (without leading zeros), location of this instrument's lastrun.txt, location of this
 instrument's summary.txt, data location (parent of cycle folder), file extension of
 data to reduce. The last observed run is updated whenever EoRM submits a new run.
