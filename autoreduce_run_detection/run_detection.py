@@ -15,7 +15,7 @@ from filelock import FileLock, Timeout
 import requests
 from requests.models import Response
 
-from isis_file_polling.settings import LOCAL_CACHE_LOCATION, AUTOREDUCE_API_URL, AUTOREDUCE_TOKEN
+from autoreduce_run_detection.settings import LOCAL_CACHE_LOCATION, AUTOREDUCE_API_URL, AUTOREDUCE_TOKEN
 
 INGEST_LOG = logging.getLogger('ingest')
 

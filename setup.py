@@ -16,7 +16,7 @@ setup_requires = [
 ]
 
 setup(
-    name='ISISFilePolling',
+    name='autoreduce-run-detection',
     version='22.0.0.dev0',
     description='A service to discover and ingest new files produced by the ISIS neutron and muon facility',
     author='ISIS Scientific Software Group',

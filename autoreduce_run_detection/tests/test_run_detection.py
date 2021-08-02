@@ -4,7 +4,7 @@
 # Copyright &copy; 2020 ISIS Rutherford Appleton Laboratory UKRI
 # ##################################################################################### #
 """
-Unit tests for ingest
+Unit tests for run_detection
 """
 import unittest
 import os
@@ -13,8 +13,8 @@ from requests.exceptions import RequestException
 from filelock import FileLock
 from mock import Mock, patch, call
 
-from isis_file_polling.ingest import InstrumentMonitor, InstrumentMonitorError, update_last_runs, main
-from isis_file_polling.settings import AUTOREDUCE_API_URL, LOCAL_CACHE_LOCATION
+from autoreduce_run_detection.run_detection import InstrumentMonitor, InstrumentMonitorError, update_last_runs, main
+from autoreduce_run_detection.settings import AUTOREDUCE_API_URL, LOCAL_CACHE_LOCATION
 
 # Test data
 SUMMARY_FILE = ("WIS44731Smith,Smith,"
@@ -109,7 +109,7 @@ class TestRunDetection(unittest.TestCase):
         self.assertEqual(run_number, '44733')
         inst_mon.submit_runs.assert_has_calls([call(44732, 44734)])
 
-    @patch('isis_file_polling.ingest.requests.post', return_value='44736')
+    @patch('autoreduce_run_detection.run_detection.requests.post', return_value='44736')
     def test_update_last_runs(self, requests_post_mock: Mock):
         # write out the local lastruns.csv that is used to track each instrument
         with open('test_last_runs.csv', 'w') as last_runs:
@@ -149,13 +149,13 @@ class TestRunDetection(unittest.TestCase):
                 if row:  # Avoid the empty rows
                     self.assertEqual('44733', row[1])
 
-    @patch('isis_file_polling.ingest.update_last_runs')
+    @patch('autoreduce_run_detection.run_detection.update_last_runs')
     def test_main(self, update_last_runs_mock):
         main()
         update_last_runs_mock.assert_called_with(LOCAL_CACHE_LOCATION)
         update_last_runs_mock.assert_called_once()
 
-    @patch('isis_file_polling.ingest.update_last_runs')
+    @patch('autoreduce_run_detection.run_detection.update_last_runs')
     def test_main_lock_timeout(self, _):
         with FileLock('{}.lock'.format(LOCAL_CACHE_LOCATION)):
             main()
