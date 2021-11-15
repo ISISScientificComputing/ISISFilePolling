@@ -172,7 +172,7 @@ class TestRunDetection(TestCase):
                 if row:  # Avoid the empty rows
                     self.assertEqual('44733', row[1])
 
-        assert logger_mock.info.call_count == 2
+        assert logger_mock.info.call_count == 3
         assert logger_mock.error.call_count == 2
 
     @parameterized.expand([
@@ -208,7 +208,7 @@ class TestRunDetection(TestCase):
                 if row:  # Avoid the empty rows
                     self.assertEqual('44733', row[1])
 
-        logger_mock.info.assert_called_once()
+        assert logger_mock.info.call_count == 2
         assert logger_mock.error.call_count == 3
 
     @patch(
@@ -243,7 +243,7 @@ class TestRunDetection(TestCase):
                 if row:  # Avoid the empty rows
                     self.assertEqual('44733', row[1])
 
-        logger_mock.info.assert_called_once()
+        assert logger_mock.info.call_count == 2
         assert logger_mock.error.call_count == 2
 
         assert requests_post_mock.call_count == 2

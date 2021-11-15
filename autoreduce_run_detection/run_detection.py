@@ -144,6 +144,7 @@ def update_last_runs(csv_name):
     with open(csv_name, 'r') as csv_file:
         csv_reader = csv.reader(csv_file)
         for row in csv_reader:
+            LOGGING.info("Processing instrument %s with last run %i", row[0], int(row[1]))
             inst_mon = InstrumentMonitor(instrument_name=row[0],
                                          last_run_file=row[2],
                                          summary_file=row[3],
@@ -175,7 +176,7 @@ def main():
         with FileLock("{}.lock".format(LOCAL_CACHE_LOCATION), timeout=1):
             update_last_runs(LOCAL_CACHE_LOCATION)
     except Timeout:
-        LOGGING.error(("Error acquiring lock on last runs CSV." " There may be another instance running."))
+        LOGGING.error("Error acquiring lock on last runs CSV." " There may be another instance running.")
 
 
 if __name__ == '__main__':
