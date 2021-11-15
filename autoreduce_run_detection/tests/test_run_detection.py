@@ -6,14 +6,14 @@
 """
 Unit tests for run_detection
 """
-import logging
-import unittest
-import os
 import csv
-from requests.exceptions import RequestException, ConnectionError
-from parameterized import parameterized
+import os
+from unittest.mock import Mock, patch, call
+from unittest import TestCase
+from requests.exceptions import RequestException, ConnectionError  # pylint:disable=redefined-builtin
+
 from filelock import FileLock
-from mock import Mock, patch, call
+from parameterized import parameterized
 
 from autoreduce_run_detection.run_detection import InstrumentMonitor, InstrumentMonitorError, update_last_runs, main
 from autoreduce_run_detection.settings import AUTOREDUCE_API_URL, LOCAL_CACHE_LOCATION
@@ -68,7 +68,7 @@ NXLOAD_MOCK_EMPTY = Mock()
 NXLOAD_MOCK_EMPTY.items = Mock(return_value=[('raw_data_1', DataHolder(['']))])
 
 
-class TestRunDetection(unittest.TestCase):
+class TestRunDetection(TestCase):
     def tearDown(self):
         if os.path.isfile('test_lastrun.txt'):
             os.remove('test_lastrun.txt')
