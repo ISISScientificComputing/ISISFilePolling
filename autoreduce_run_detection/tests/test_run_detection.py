@@ -6,15 +6,19 @@
 """
 Unit tests for run_detection
 """
-import unittest
-import os
 import csv
-from requests.exceptions import RequestException
+import os
+from unittest.mock import Mock, patch, call
+from unittest import TestCase
+from requests.exceptions import RequestException, ConnectionError  # pylint:disable=redefined-builtin
+
 from filelock import FileLock
-from mock import Mock, patch, call
+from parameterized import parameterized
 
 from autoreduce_run_detection.run_detection import InstrumentMonitor, InstrumentMonitorError, update_last_runs, main
 from autoreduce_run_detection.settings import AUTOREDUCE_API_URL, LOCAL_CACHE_LOCATION
+
+# pylint:disable=abstract-class-instantiated
 
 # Test data
 SUMMARY_FILE = ("WIS44731Smith,Smith,"
@@ -66,7 +70,7 @@ NXLOAD_MOCK_EMPTY = Mock()
 NXLOAD_MOCK_EMPTY.items = Mock(return_value=[('raw_data_1', DataHolder(['']))])
 
 
-class TestRunDetection(unittest.TestCase):
+class TestRunDetection(TestCase):
     def tearDown(self):
         if os.path.isfile('test_lastrun.txt'):
             os.remove('test_lastrun.txt')
@@ -111,7 +115,7 @@ class TestRunDetection(unittest.TestCase):
         self.assertEqual(run_number, '44733')
         inst_mon.submit_runs.assert_has_calls([call(44732, 44734)])
 
-    @patch('autoreduce_run_detection.run_detection.requests.post', return_value='44736')
+    @patch('autoreduce_run_detection.run_detection.requests.post', return_value=[44734, 44735])
     def test_update_last_runs(self, requests_post_mock: Mock):
         # write out the local lastruns.csv that is used to track each instrument
         with open('test_last_runs.csv', 'w') as last_runs:
@@ -124,9 +128,12 @@ class TestRunDetection(unittest.TestCase):
         # Perform test
         update_last_runs('test_last_runs.csv')
         requests_post_mock.assert_called_once()
-        assert requests_post_mock.call_args[0][0] == AUTOREDUCE_API_URL.format(instrument="WISH",
-                                                                               start_run="44734",
-                                                                               end_run="44735")
+        assert requests_post_mock.call_args[0][0] == AUTOREDUCE_API_URL.format(instrument="WISH")
+        assert "json" in requests_post_mock.call_args[1]
+        assert "headers" in requests_post_mock.call_args[1]
+
+        assert requests_post_mock.call_args[1]["json"]["runs"] == [44734, 44735]
+        assert requests_post_mock.call_args[1]["json"]["user_id"] == 0
 
         # Read the CSV and ensure it has been updated
         with open('test_last_runs.csv') as csv_file:
@@ -135,8 +142,88 @@ class TestRunDetection(unittest.TestCase):
                 if row:  # Avoid the empty rows
                     self.assertEqual('44734', row[1])
 
-    @patch('requests.post', return_value='44736', side_effect=RequestException)
-    def test_update_last_runs_with_error(self, requests_post_mock: Mock):
+    @parameterized.expand([
+        [ConnectionError],
+        [RequestException],
+    ])
+    @patch('autoreduce_run_detection.run_detection.requests.post', return_value=[44734, 44735])
+    @patch('autoreduce_run_detection.run_detection.LOGGING')
+    def test_update_last_runs_with_error(self, exception_class, logger_mock: Mock, requests_post_mock: Mock):
+        """
+        Test trying to update last runs but the request to the autoreduce API fails.
+        """
+        # Setup test
+        requests_post_mock.side_effect = exception_class
+        with open('test_last_runs.csv', 'w') as last_runs:
+            last_runs.write(CSV_FILE)
+
+        # write out the lastruns.txt file that would usually be on the archive
+        with open('lastrun_wish.txt', 'w') as lastrun_wish:
+            lastrun_wish.write(LASTRUN_WISH_TXT)
+
+        # Perform test
+        update_last_runs('test_last_runs.csv')
+        requests_post_mock.asssert_called_once()
+
+        # Read the CSV and ensure it has been updated
+        with open('test_last_runs.csv') as csv_file:
+            csv_reader = csv.reader(csv_file)
+            for row in csv_reader:
+                if row:  # Avoid the empty rows
+                    self.assertEqual('44733', row[1])
+
+        assert logger_mock.info.call_count == 2
+        assert logger_mock.error.call_count == 2
+
+    @parameterized.expand([
+        [ConnectionError],
+        [RequestException],
+    ])
+    @patch('autoreduce_run_detection.run_detection.requests.post', return_value=[44734, 44735])
+    @patch('autoreduce_run_detection.run_detection.LOGGING')
+    @patch('autoreduce_run_detection.run_detection.TEAMS_URL', return_value="http://fake_url")
+    def test_update_last_runs_with_error_and_teams_url_also_fails(self, exception_class, _: Mock, logger_mock: Mock,
+                                                                  requests_post_mock: Mock):
+        """
+        Test trying to update last runs but both the request to the
+        autoreduce API and the request to the teams API fail.
+        """
+        # Setup test
+        requests_post_mock.side_effect = exception_class
+        with open('test_last_runs.csv', 'w') as last_runs:
+            last_runs.write(CSV_FILE)
+
+        # write out the lastruns.txt file that would usually be on the archive
+        with open('lastrun_wish.txt', 'w') as lastrun_wish:
+            lastrun_wish.write(LASTRUN_WISH_TXT)
+
+        # Perform test
+        update_last_runs('test_last_runs.csv')
+        requests_post_mock.asssert_called_once()
+
+        # Read the CSV and ensure it has been updated
+        with open('test_last_runs.csv') as csv_file:
+            csv_reader = csv.reader(csv_file)
+            for row in csv_reader:
+                if row:  # Avoid the empty rows
+                    self.assertEqual('44733', row[1])
+
+        logger_mock.info.assert_called_once()
+        assert logger_mock.error.call_count == 3
+
+    @patch(
+        'autoreduce_run_detection.run_detection.requests.post',
+        return_value=[44734, 44735],
+        side_effect=[RequestException, None]  # this means the second call will NOT raise an exception
+    )
+    @patch('autoreduce_run_detection.run_detection.LOGGING')
+    @patch('autoreduce_run_detection.run_detection.TEAMS_URL', return_value="http://fake_url")
+    def test_update_last_runs_with_error_and_teams_url(self, teams_url: Mock, logger_mock: Mock,
+                                                       requests_post_mock: Mock):
+        """
+        Test trying to update last runs but the request to the autoreduce API fails.
+        The request to the teams API does not raise an exception in this test, i.e. the success path.
+        """
         # Setup test
         with open('test_last_runs.csv', 'w') as last_runs:
             last_runs.write(CSV_FILE)
@@ -156,13 +243,21 @@ class TestRunDetection(unittest.TestCase):
                 if row:  # Avoid the empty rows
                     self.assertEqual('44733', row[1])
 
+        logger_mock.info.assert_called_once()
+        assert logger_mock.error.call_count == 2
+
+        assert requests_post_mock.call_count == 2
+        assert teams_url in requests_post_mock.call_args[0]
+
+    @staticmethod
     @patch('autoreduce_run_detection.run_detection.update_last_runs')
-    def test_main(self, update_last_runs_mock):
+    def test_main(update_last_runs_mock):
         main()
         update_last_runs_mock.assert_called_with(LOCAL_CACHE_LOCATION)
         update_last_runs_mock.assert_called_once()
 
+    @staticmethod
     @patch('autoreduce_run_detection.run_detection.update_last_runs')
-    def test_main_lock_timeout(self, _):
+    def test_main_lock_timeout(_):
         with FileLock('{}.lock'.format(LOCAL_CACHE_LOCATION)):
             main()
