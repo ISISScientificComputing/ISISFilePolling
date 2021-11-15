@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "name": "Run detection",
+            "type": "python",
+            "request": "launch",
+            "module": "autoreduce_run_detection.run_detection"
+        }
+    ]
+}
