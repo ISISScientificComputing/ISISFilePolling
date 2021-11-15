@@ -18,6 +18,8 @@ from parameterized import parameterized
 from autoreduce_run_detection.run_detection import InstrumentMonitor, InstrumentMonitorError, update_last_runs, main
 from autoreduce_run_detection.settings import AUTOREDUCE_API_URL, LOCAL_CACHE_LOCATION
 
+# pylint:disable=abstract-class-instantiated
+
 # Test data
 SUMMARY_FILE = ("WIS44731Smith,Smith,"
                 "SmithCeAuSb2 MRSX ROT=15.05 s28-MAR-2019 09:14:23    34.3 1820461\n"
@@ -247,13 +249,15 @@ class TestRunDetection(TestCase):
         assert requests_post_mock.call_count == 2
         assert teams_url in requests_post_mock.call_args[0]
 
+    @staticmethod
     @patch('autoreduce_run_detection.run_detection.update_last_runs')
-    def test_main(self, update_last_runs_mock):
+    def test_main(update_last_runs_mock):
         main()
         update_last_runs_mock.assert_called_with(LOCAL_CACHE_LOCATION)
         update_last_runs_mock.assert_called_once()
 
+    @staticmethod
     @patch('autoreduce_run_detection.run_detection.update_last_runs')
-    def test_main_lock_timeout(self, _):
+    def test_main_lock_timeout(_):
         with FileLock('{}.lock'.format(LOCAL_CACHE_LOCATION)):
             main()

@@ -19,6 +19,8 @@ from requests.models import Response
 
 from autoreduce_run_detection.settings import LOCAL_CACHE_LOCATION, AUTOREDUCE_API_URL, AUTOREDUCE_TOKEN, TEAMS_URL
 
+# pylint:disable=abstract-class-instantiated
+
 LOGGING = logging.getLogger(__file__)
 
 TEAMS_CARD_DATA = {
