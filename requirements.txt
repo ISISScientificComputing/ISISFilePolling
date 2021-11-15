@@ -1,0 +1,3 @@
+# not actually used in the package YET, but it's here
+# for the code inspection CI to run more easily (it loads a django plugin for pylint)
+django
