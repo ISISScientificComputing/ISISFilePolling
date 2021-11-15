@@ -11,7 +11,7 @@ Setup for the project
 from setuptools import setup
 
 setup_requires = [
-    'autoreduce_utils',
+    'autoreduce_utils>=22.0.0.dev7',
     'filelock',
     'requests',
 ]
