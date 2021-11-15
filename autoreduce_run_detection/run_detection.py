@@ -59,7 +59,9 @@ class InstrumentMonitor:
     def read_instrument_last_run(self):
         """
         Read the last run recorded by the instrument from its lastrun.txt
-        :return: Last run on the instrument as a string
+
+        Returns:
+            Last run on the instrument as a string
         """
         with open(self.last_run_file, 'r') as last_run:
             line_parts = last_run.readline().split()
@@ -69,10 +71,12 @@ class InstrumentMonitor:
 
     def submit_runs(self, start_run, end_run) -> Response:
         """
-        Submit a run to ActiveMQ
-        :param summary_rb_number: RB number of the experiment as read from the summary file
-        :param run_number: Run number as it appears in lastrun.txt
-        :param file_name: File name e.g. GEM1234.nxs
+        Submit a run via the REST API
+
+        Args:
+            summary_rb_number: RB number of the experiment as read from the summary file
+            run_number: Run number as it appears in lastrun.txt
+            file_name: File name e.g. GEM1234.nxs
         """
         # Check to see if the last run exists, if not then raise an exception
         LOGGING.info(
@@ -110,7 +114,8 @@ class InstrumentMonitor:
         """
         Submit the difference between the last run on the archive for this
         instrument
-        :param local_last_run: Local last run to check against
+        Args:
+            local_last_run: Local last run to check against
         """
         # Get archive lastrun.txt
         last_run_data = self.read_instrument_last_run()
@@ -128,7 +133,9 @@ def update_last_runs(csv_name):
     """
     Read the last runs CSV file and bring it up to date with the
     instrument lastrun.txt
-    :param csv_name: File name of the local last runs CSV file
+
+    Args:
+        csv_name: File name of the local last runs CSV file
     """
     # Loop over instruments
     output = []
