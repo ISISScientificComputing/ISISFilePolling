@@ -5,7 +5,7 @@ run_command: >
   --volume /isis:/isis
   --volume /isis:/archive
   --volume /shared-config:/shared-config
-  --name qp-instance
+  --name run-detection
   --rm
   --network=host
   --detach
