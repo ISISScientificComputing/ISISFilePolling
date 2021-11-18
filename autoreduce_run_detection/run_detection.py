@@ -91,7 +91,7 @@ class InstrumentMonitor:
             response = requests.post(
                 AUTOREDUCE_API_URL.format(instrument=self.instrument_name),
                 json={
-                    "runs": list(range(start_run, end_run + 1)) if abs(end_run - start_run) > 0 else [start_run],
+                    "runs": list(range(start_run, end_run)),
                     "user_id": 0  # AUTOREDUCTTION_SERVICE user id
                 },
                 headers={
@@ -101,8 +101,8 @@ class InstrumentMonitor:
 
             if response.status_code != 200:
                 LOGGING.error("Request error when submitting runs in range %i - %i for %s, error: %s", start_run,
-                              end_run, self.instrument_name, response.content)
-                raise InstrumentMonitorError(f"Request status code is not 200, error: {response.content}")
+                              end_run, self.instrument_name, response.text)
+                raise InstrumentMonitorError(f"Request status code is not 200, error: {response.text}")
             return response
         except requests.exceptions.RequestException as err:
             LOGGING.error("Failed to submit runs %i - %i for instrument %s", start_run, end_run, self.instrument_name)

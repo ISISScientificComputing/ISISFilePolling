@@ -1,5 +1,6 @@
 run_command: >
   --env AUTOREDUCTION_PRODUCTION=true
+  --env AUTOREDUCE_TOKEN={{ vault_run_detection_token }}
   --volume /home/isisautoreduce/.autoreduce:/home/isisautoreduce/.autoreduce
   --volume /isis:/isis
   --volume /isis:/archive

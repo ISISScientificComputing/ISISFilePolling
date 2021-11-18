@@ -12,11 +12,19 @@
         groups=docker
         append=yes
 
+- name: Add .autoreduce folder
+  file:
+    path: "/home/{{ autoreduction_user }}/.autoreduce/"
+    state: directory
+    mode: '0755'
+    owner: "{{ autoreduction_user }}"
+    group: "{{ autoreduction_user }}"
+
 - name: Copy backup scripts
   copy:
-    src: lastruns.csv
-    dest: "/home/{{ autoreduction_user }}/.autoreduce/lastruns.csv"
-    mode: 0500
+    src: last_runs.csv
+    dest: "/home/{{ autoreduction_user }}/.autoreduce/last_runs.csv"
+    mode: 0700
     owner: "{{ autoreduction_user }}"
 
 - name: Set run_command depending on deployment stage
@@ -29,9 +37,9 @@
     mode: 0500
     owner: "{{ autoreduction_user }}"
 
-- name: Run run detection every minute
+- name: Run run-detection every minute
   become: yes
   become_user: "{{ autoreduction_user }}"
   ansible.builtin.cron:
-    name: "Run run detection every minute"
+    name: "Run run-detection every minute"
     job: "bash run-run-detection.sh"
