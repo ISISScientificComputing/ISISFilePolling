@@ -1,0 +1,7 @@
+#!/bin/bash
+
+COMMAND="{{ run_command }}"
+CONTAINER=ghcr.io/isisscientificcomputing/autoreduce-run-detection:latest
+
+docker pull $CONTAINER
+docker run $COMMAND $CONTAINER

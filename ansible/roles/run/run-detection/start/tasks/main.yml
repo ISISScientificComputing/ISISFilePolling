@@ -1,12 +1,37 @@
 ---
+- name: Ensure group "docker" exists
+  ansible.builtin.group:
+    name: docker
+    state: present
+
+- name: Adding user {{ autoreduction_user }} to `docker` group to allow sudoless docker usage
+  user: name={{ autoreduction_user }}
+        group={{ autoreduction_user }}
+        shell=/bin/bash
+        password=${password}
+        groups=docker
+        append=yes
+
+- name: Copy backup scripts
+  copy:
+    src: lastruns.csv
+    dest: "/home/{{ autoreduction_user }}/.autoreduce/lastruns.csv"
+    mode: 0500
+    owner: "{{ autoreduction_user }}"
 
 - name: Set run_command depending on deployment stage
   include_vars: "{{ deployment_stage }}.yml"
 
-- name: Pull the docker container to get any updates
-  become: yes
-  command: docker pull ghcr.io/isisscientificcomputing/autoreduce-run-detection:latest
+- name: Copy run-run-detection script
+  template:
+    src: run-run-detection.sh.j2
+    dest: "/home/{{ autoreduction_user }}/run-run-detection.sh"
+    mode: 0500
+    owner: "{{ autoreduction_user }}"
 
-- name: Start the detached Docker container
+- name: Run run detection every minute
   become: yes
-  command: docker run {{ run_command }} ghcr.io/isisscientificcomputing/autoreduce-run-detection:latest
+  become_user: "{{ autoreduction_user }}"
+  ansible.builtin.cron:
+    name: "Run run detection every minute"
+    job: "bash run-run-detection.sh"
