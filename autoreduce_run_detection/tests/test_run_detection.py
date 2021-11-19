@@ -45,7 +45,7 @@ RUN_DICT_SUMMARY = {
     'facility': 'ISIS'
 }
 CSV_FILE = "WISH,44733,lastrun_wish.txt,summary_wish.txt,data_dir,.nxs"
-LASTRUN_WISH_TXT = "WISH 44734 0"
+LASTRUN_WISH_TXT = "WISH 44735 0"
 
 
 # pylint:disable=too-few-public-methods,missing-function-docstring
@@ -68,6 +68,11 @@ NXLOAD_MOCK.items = Mock(return_value=[('raw_data_1', DataHolder([b'1910232']))]
 
 NXLOAD_MOCK_EMPTY = Mock()
 NXLOAD_MOCK_EMPTY.items = Mock(return_value=[('raw_data_1', DataHolder(['']))])
+
+
+class MockRequest:
+    status_code = 200
+    content = [44734]
 
 
 class TestRunDetection(TestCase):
@@ -115,7 +120,7 @@ class TestRunDetection(TestCase):
         self.assertEqual(run_number, '44733')
         inst_mon.submit_runs.assert_has_calls([call(44732, 44734)])
 
-    @patch('autoreduce_run_detection.run_detection.requests.post', return_value=[44734, 44735])
+    @patch('autoreduce_run_detection.run_detection.requests.post', return_value=MockRequest())
     def test_update_last_runs(self, requests_post_mock: Mock):
         # write out the local lastruns.csv that is used to track each instrument
         with open('test_last_runs.csv', 'w') as last_runs:
@@ -140,7 +145,7 @@ class TestRunDetection(TestCase):
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
                 if row:  # Avoid the empty rows
-                    self.assertEqual('44734', row[1])
+                    self.assertEqual('44735', row[1])
 
     @parameterized.expand([
         [ConnectionError],
