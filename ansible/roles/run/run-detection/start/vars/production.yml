@@ -1,11 +1,10 @@
 run_command: >
   --env AUTOREDUCTION_PRODUCTION=true
+  --env AUTOREDUCE_TOKEN={{ vault_run_detection_token }}
   --volume /home/isisautoreduce/.autoreduce:/home/isisautoreduce/.autoreduce
-  --volume /instrument:/instrument
   --volume /isis:/isis
   --volume /isis:/archive
   --volume /shared-config:/shared-config
   --name run-detection
   --rm
   --network=host
-  --detach

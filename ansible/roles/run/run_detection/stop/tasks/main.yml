@@ -1,6 +1,0 @@
----
-
-- name: Stop the Docker instance
-  become: yes
-  command: docker stop --time=60 run-detection
-  ignore_errors: yes

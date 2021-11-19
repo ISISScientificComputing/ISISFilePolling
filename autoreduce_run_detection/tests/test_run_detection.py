@@ -45,7 +45,7 @@ RUN_DICT_SUMMARY = {
     'facility': 'ISIS'
 }
 CSV_FILE = "WISH,44733,lastrun_wish.txt,summary_wish.txt,data_dir,.nxs"
-LASTRUN_WISH_TXT = "WISH 44734 0"
+LASTRUN_WISH_TXT = "WISH 44735 0"
 
 
 # pylint:disable=too-few-public-methods,missing-function-docstring
@@ -68,6 +68,11 @@ NXLOAD_MOCK.items = Mock(return_value=[('raw_data_1', DataHolder([b'1910232']))]
 
 NXLOAD_MOCK_EMPTY = Mock()
 NXLOAD_MOCK_EMPTY.items = Mock(return_value=[('raw_data_1', DataHolder(['']))])
+
+
+class MockResponse:
+    status_code = 200
+    content = [44734]
 
 
 class TestRunDetection(TestCase):
@@ -115,8 +120,11 @@ class TestRunDetection(TestCase):
         self.assertEqual(run_number, '44733')
         inst_mon.submit_runs.assert_has_calls([call(44732, 44734)])
 
-    @patch('autoreduce_run_detection.run_detection.requests.post', return_value=[44734, 44735])
+    @patch('autoreduce_run_detection.run_detection.requests.post', return_value=MockResponse())
     def test_update_last_runs(self, requests_post_mock: Mock):
+        """
+        Test submission with a 200 OK response, everything working OK
+        """
         # write out the local lastruns.csv that is used to track each instrument
         with open('test_last_runs.csv', 'w') as last_runs:
             last_runs.write(CSV_FILE)
@@ -140,13 +148,46 @@ class TestRunDetection(TestCase):
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
                 if row:  # Avoid the empty rows
-                    self.assertEqual('44734', row[1])
+                    self.assertEqual('44735', row[1])
+
+    @patch('autoreduce_run_detection.run_detection.requests.post')
+    def test_update_last_runs_not_200_status(self, requests_post_mock: Mock):
+        """
+        Test when the response is not 200 OK that the error is handled
+        """
+        mock_response = MockResponse()
+        mock_response.status_code = 401
+        # write out the local lastruns.csv that is used to track each instrument
+        with open('test_last_runs.csv', 'w') as last_runs:
+            last_runs.write(CSV_FILE)
+
+        # write out the lastruns.txt file that would usually be on the archive
+        with open('lastrun_wish.txt', 'w') as lastrun_wish:
+            lastrun_wish.write(LASTRUN_WISH_TXT)
+
+        # Perform test
+        update_last_runs('test_last_runs.csv')
+        requests_post_mock.assert_called_once()
+        assert requests_post_mock.call_args[0][0] == AUTOREDUCE_API_URL.format(instrument="WISH")
+        assert "json" in requests_post_mock.call_args[1]
+        assert "headers" in requests_post_mock.call_args[1]
+
+        assert requests_post_mock.call_args[1]["json"]["runs"] == [44734, 44735]
+        assert requests_post_mock.call_args[1]["json"]["user_id"] == 0
+
+        # Read the CSV and ensure it has been updated
+        with open('test_last_runs.csv') as csv_file:
+            csv_reader = csv.reader(csv_file)
+            for row in csv_reader:
+                if row:  # Avoid the empty rows
+                    # the row value should be UNCHANGED as the submission request failed
+                    self.assertEqual('44733', row[1])
 
     @parameterized.expand([
         [ConnectionError],
         [RequestException],
     ])
-    @patch('autoreduce_run_detection.run_detection.requests.post', return_value=[44734, 44735])
+    @patch('autoreduce_run_detection.run_detection.requests.post')
     @patch('autoreduce_run_detection.run_detection.LOGGING')
     def test_update_last_runs_with_error(self, exception_class, logger_mock: Mock, requests_post_mock: Mock):
         """
@@ -179,7 +220,7 @@ class TestRunDetection(TestCase):
         [ConnectionError],
         [RequestException],
     ])
-    @patch('autoreduce_run_detection.run_detection.requests.post', return_value=[44734, 44735])
+    @patch('autoreduce_run_detection.run_detection.requests.post')
     @patch('autoreduce_run_detection.run_detection.LOGGING')
     @patch('autoreduce_run_detection.run_detection.TEAMS_URL', return_value="http://fake_url")
     def test_update_last_runs_with_error_and_teams_url_also_fails(self, exception_class, _: Mock, logger_mock: Mock,
@@ -213,7 +254,6 @@ class TestRunDetection(TestCase):
 
     @patch(
         'autoreduce_run_detection.run_detection.requests.post',
-        return_value=[44734, 44735],
         side_effect=[RequestException, None]  # this means the second call will NOT raise an exception
     )
     @patch('autoreduce_run_detection.run_detection.LOGGING')

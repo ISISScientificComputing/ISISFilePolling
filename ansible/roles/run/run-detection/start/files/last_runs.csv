@@ -1,0 +1,17 @@
+WISH,50395,/isis/NDXWISH/Instrument/logs/lastrun.txt,/isis/NDXWISH/Instrument/logs/journal/summary.txt,/isis/NDXWISH/Instrument/data,.nxs
+GEM,92449,/isis/NDXGEM/Instrument/logs/lastrun.txt,/isis/NDXGEM/Instrument/logs/journal/SUMMARY.TXT,/isis/NDXGEM/Instrument/data,.nxs
+MARI,28448,/isis/NDXMARI/Instrument/logs/lastrun.txt,/isis/NDXMARI/Instrument/logs/journal/SUMMARY.txt,/isis/NDXMARI/Instrument/data,.nxs
+MAPS,42690,/isis/NDXMAPS/Instrument/logs/lastrun.txt,/isis/NDXMAPS/Instrument/logs/journal/SUMMARY.txt,/isis/NDXMAPS/Instrument/data,.nxs
+MUSR,87000,/isis/NDXMUSR/Instrument/logs/lastrun.txt,/isis/NDXMUSR/Instrument/logs/journal/summary.txt,/isis/NDXMUSR/Instrument/data,.nxs
+OSIRIS,147082,/isis/NDXOSIRIS/Instrument/logs/lastrun.txt,/isis/NDXOSIRIS/Instrument/logs/journal/summary.txt,/isis/NDXOSIRIS/Instrument/data,.nxs
+EMU,114483,/isis/NDXEMU/Instrument/logs/lastrun.txt,/isis/NDXEMU/Instrument/logs/journal/summary.txt,/isis/NDXEMU/Instrument/data,.nxs
+HIFI,179992,/isis/NDXHIFI/Instrument/logs/lastrun.txt,/isis/NDXHIFI/Instrument/logs/journal/summary.txt,/isis/NDXHIFI/Instrument/data,.nxs
+ARGUS,73587,/isis/NDXARGUS/Instrument/logs/lastrun.txt,/isis/NDXARGUS/Instrument/logs/journal/summary.txt,/isis/NDXARGUS/Instrument/data,.nxs
+CHRONUS,9938,/isis/NDXCHRONUS/Instrument/logs/lastrun.txt,/isis/NDXCHRONUS/Instrument/logs/journal/summary.txt,/isis/NDXCHRONUS/Instrument/data,.nxs
+SANS2D,68872,/isis/NDXSANS2D/Instrument/logs/lastrun.txt,/isis/NDXSANS2D/Instrument/logs/journal/summary.txt,/isis/NDXSANS2D/Instrument/data,.nxs
+LOQ,109198,/isis/NDXLOQ/Instrument/logs/lastrun.txt,/isis/NDXLOQ/Instrument/logs/journal/summary.txt,/isis/NDXLOQ/Instrument/data,.nxs
+ZOOM,19824,/isis/NDXZOOM/Instrument/logs/lastrun.txt,/isis/NDXZOOM/Instrument/logs/journal/summary.txt,/isis/NDXZOOM/Instrument/data,.nxs
+LARMOR,60201,/isis/NDXLARMOR/Instrument/logs/lastrun.txt,/isis/NDXLARMOR/Instrument/logs/journal/summary.txt,/isis/NDXLARMOR/Instrument/data,.nxs
+POLARIS,130834,/isis/NDXPOLARIS/Instrument/logs/lastrun.txt,/isis/NDXPOLARIS/Instrument/logs/journal/summary.txt,/isis/NDXPOLARIS/Instrument/data,.nxs
+PEARL,116443,/isis/NDXPEARL/Instrument/logs/lastrun.txt,/isis/NDXPEARL/Instrument/logs/journal/summary.txt,/isis/NDXPEARL/Instrument/data,.nxs
+INTER,64035,/isis/NDXINTER/Instrument/logs/lastrun.txt,/isis/NDXINTER/Instrument/logs/journal/summary.txt,/isis/NDXINTER/Instrument/data,.nxs
