@@ -17,7 +17,7 @@ setup_requires = [
 ]
 
 setup(name='autoreduce-run-detection',
-      version='22.0.0.dev6',
+      version='22.0.0.dev7',
       description='A service to discover and ingest new files produced by the ISIS neutron and muon facility',
       author='ISIS Autoreduction Team',
       url='https://github.com/ISISScientificComputing/autoreduce-run-detection',
