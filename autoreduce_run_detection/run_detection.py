@@ -80,18 +80,19 @@ class InstrumentMonitor:
             run_number: Run number as it appears in lastrun.txt
             file_name: File name e.g. GEM1234.nxs
         """
+        runs = list(range(start_run, end_run))
+        runs_str = ",".join([str(run) for run in runs])
         # Check to see if the last run exists, if not then raise an exception
         LOGGING.info(
-            "Submitting runs in range %i - %i for %s",
-            start_run,
-            end_run,
+            "Submitting runs in range %s for %s",
+            runs_str,
             self.instrument_name,
         )
         try:
             response = requests.post(
                 AUTOREDUCE_API_URL.format(instrument=self.instrument_name),
                 json={
-                    "runs": list(range(start_run, end_run)),
+                    "runs": runs,
                     "user_id": 0  # AUTOREDUCTTION_SERVICE user id
                 },
                 headers={
@@ -100,15 +101,15 @@ class InstrumentMonitor:
                 })
 
             if response.status_code != 200:
-                LOGGING.error("Request error when submitting runs in range %i - %i for %s, error: %s", start_run,
-                              end_run, self.instrument_name, response.text)
+                LOGGING.error("Request error when submitting runs in range %s for %s, error: %s", runs_str,
+                              self.instrument_name, response.text)
                 raise InstrumentMonitorError(f"Request status code is not 200, error: {response.text}")
             return response
         except requests.exceptions.RequestException as err:
             LOGGING.error("Failed to submit runs %i - %i for instrument %s", start_run, end_run, self.instrument_name)
             if self.teams_url:
                 data = copy.deepcopy(TEAMS_CARD_DATA)
-                data["text"] = f"Failed to submit runs {start_run} - {end_run} for instrument {self.instrument_name}"
+                data["text"] = f"Failed to submit runs {runs} for instrument {self.instrument_name}"
                 try:
                     requests.post(self.teams_url, json=data)
                 except requests.exceptions.RequestException:
