@@ -9,7 +9,7 @@ A service to poll the ISIS Data Cache, discover new files and push them to a bro
 ### Installation
 Requires: Python3.6+, ActiveMQ
 
-1. `git clone https://github.com/ISISScientificComputing/ISISFilePolling.git`
+1. `git clone https://github.com/autoreduction/ISISFilePolling.git`
      1. Optionally setup a python virtualenv to manage package requirements
 2. `pip3 install -e ISISFilePolling`
 3. `pip3 install -r ISISFilePolling/requirements.txt`
