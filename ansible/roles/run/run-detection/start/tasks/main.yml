@@ -1,16 +1,4 @@
 ---
-- name: Ensure group "docker" exists
-  ansible.builtin.group:
-    name: docker
-    state: present
-
-- name: Adding user {{ autoreduction_user }} to `docker` group to allow sudoless docker usage
-  user: name={{ autoreduction_user }}
-        group={{ autoreduction_user }}
-        shell=/bin/bash
-        password=${password}
-        groups=docker
-        append=yes
 
 - name: Add .autoreduce folder
   file:
