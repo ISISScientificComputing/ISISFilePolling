@@ -1,5 +1,5 @@
 run_command: >
-  --volume /home/isisautoreduce/.autoreduce:/home/isisautoreduce/.autoreduce
+  --volume /home/{{ autoreduction_user }}/.autoreduce:/home/{{ autoreduction_user }}/.autoreduce
   --volume /isis:/isis
   --volume /isis:/archive
   --volume /shared-config:/shared-config
