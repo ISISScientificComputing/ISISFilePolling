@@ -1,0 +1,11 @@
+---
+
+galaxy_info:
+  author: dtasev
+  description: Installs run-detection and configures a cronjob to run it every minute
+  license: MIT
+  min_ansible_version: 2.1
+  platforms:
+    - name: CentOS7
+
+dependencies: []
