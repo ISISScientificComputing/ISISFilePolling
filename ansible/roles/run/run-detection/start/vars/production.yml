@@ -6,5 +6,4 @@ run_command: >
   --volume /isis:/archive
   --volume /shared-config:/shared-config
   --name run-detection
-  --rm
   --network=host

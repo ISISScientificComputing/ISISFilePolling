@@ -1,7 +1,3 @@
 #!/bin/bash
 
-COMMAND="{{ run_command }}"
-CONTAINER=ghcr.io/autoreduction/autoreduce-run-detection:latest
-
-docker pull $CONTAINER
-docker run $COMMAND $CONTAINER
+docker start run-detection

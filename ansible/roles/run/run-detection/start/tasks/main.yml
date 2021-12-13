@@ -15,8 +15,24 @@
     mode: 0700
     owner: "{{ autoreduction_user }}"
 
-- name: Set run_command depending on deployment stage
-  include_vars: "{{ deployment_stage }}.yml"
+- name: Start the container
+  community.docker.docker_container:
+    name: run-detection
+    image: ghcr.io/autoreduction/autoreduce-run-detection:latest
+    state: started
+    pull: true
+    env:
+      AUTOREDUCTION_PRODUCTION: "true"
+      AUTOREDUCE_TOKEN: "{{ vault_run_detection_token }}"
+    volumes:
+      - /home/{{ autoreduction_user }}/.autoreduce:/home/{{ autoreduction_user }}/.autoreduce:rw
+      - /instrument:/instrument:rw
+      - /isis:/isis
+      - /shared-config:/shared-config
+    detach: yes
+    network_mode: host
+    comparisons:
+      image: strict
 
 - name: Copy run-run-detection script
   template:
@@ -30,4 +46,4 @@
   become_user: "{{ autoreduction_user }}"
   ansible.builtin.cron:
     name: "Run run-detection every minute"
-    job: "bash run-run-detection.sh"
+    job: "bash run-run-detection.sh >> ~/job-output.log"
