@@ -15,7 +15,6 @@ data to reduce. The last observed run is updated whenever EoRM submits a new run
 There are two settings in settings.py for this script:
 
 * LAST_RUNS_CSV - Location of the CSV file described above
-* CYCLE_FOLDER - Folder for the current cycle in the instrument data directory.
 
 ## Production Configuration
 

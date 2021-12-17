@@ -12,9 +12,6 @@ from autoreduce_utils.settings import AUTOREDUCE_HOME_ROOT
 
 LOCAL_CACHE_LOCATION = os.path.join(AUTOREDUCE_HOME_ROOT, 'last_runs.csv')
 
-# Data Cache
-CYCLE_FOLDER = "cycle_22_1"
-
 if "AUTOREDUCTION_PRODUCTION" in os.environ:
     AUTOREDUCE_API_URL = "https://reduce.isis.cclrc.ac.uk/api/runs/{instrument}"
 else:
