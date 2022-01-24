@@ -53,6 +53,7 @@ class DataHolder:
     """
     Small helper class to represent expected nexus data format
     """
+
     def __init__(self, data):
         self.data = data
 
@@ -76,6 +77,7 @@ class MockResponse:
 
 
 class TestRunDetection(TestCase):
+
     def tearDown(self):
         if os.path.isfile('test_lastrun.txt'):
             os.remove('test_lastrun.txt')
@@ -87,7 +89,7 @@ class TestRunDetection(TestCase):
             os.remove('lastrun_wish.txt')
 
     def test_read_instrument_last_run(self):
-        with open('test_lastrun.txt', 'w') as last_run:
+        with open('test_lastrun.txt', mode='w', encoding="utf-8") as last_run:
             last_run.write(LAST_RUN_FILE)
 
         inst_mon = InstrumentMonitor('WISH')
@@ -100,7 +102,7 @@ class TestRunDetection(TestCase):
 
     # pylint:disable=invalid-name
     def test_read_instrument_last_run_invalid_length(self):
-        with open('test_lastrun.txt', 'w') as last_run:
+        with open('test_lastrun.txt', mode='w', encoding="utf-8") as last_run:
             last_run.write(INVALID_LAST_RUN_FILE)
 
         inst_mon = InstrumentMonitor('WISH')
@@ -126,11 +128,11 @@ class TestRunDetection(TestCase):
         Test submission with a 200 OK response, everything working OK
         """
         # write out the local lastruns.csv that is used to track each instrument
-        with open('test_last_runs.csv', 'w') as last_runs:
+        with open('test_last_runs.csv', mode='w', encoding="utf-8") as last_runs:
             last_runs.write(CSV_FILE)
 
         # write out the lastruns.txt file that would usually be on the archive
-        with open('lastrun_wish.txt', 'w') as lastrun_wish:
+        with open('lastrun_wish.txt', mode='w', encoding="utf-8") as lastrun_wish:
             lastrun_wish.write(LASTRUN_WISH_TXT)
 
         # Perform test
@@ -144,7 +146,7 @@ class TestRunDetection(TestCase):
         assert requests_post_mock.call_args[1]["json"]["user_id"] == 0
 
         # Read the CSV and ensure it has been updated
-        with open('test_last_runs.csv') as csv_file:
+        with open('test_last_runs.csv', encoding="utf-8") as csv_file:
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
                 if row:  # Avoid the empty rows
@@ -158,11 +160,11 @@ class TestRunDetection(TestCase):
         mock_response = MockResponse()
         mock_response.status_code = 401
         # write out the local lastruns.csv that is used to track each instrument
-        with open('test_last_runs.csv', 'w') as last_runs:
+        with open('test_last_runs.csv', mode='w', encoding="utf-8") as last_runs:
             last_runs.write(CSV_FILE)
 
         # write out the lastruns.txt file that would usually be on the archive
-        with open('lastrun_wish.txt', 'w') as lastrun_wish:
+        with open('lastrun_wish.txt', mode='w', encoding="utf-8") as lastrun_wish:
             lastrun_wish.write(LASTRUN_WISH_TXT)
 
         # Perform test
@@ -176,7 +178,7 @@ class TestRunDetection(TestCase):
         assert requests_post_mock.call_args[1]["json"]["user_id"] == 0
 
         # Read the CSV and ensure it has been updated
-        with open('test_last_runs.csv') as csv_file:
+        with open('test_last_runs.csv', encoding="utf-8") as csv_file:
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
                 if row:  # Avoid the empty rows
@@ -195,11 +197,11 @@ class TestRunDetection(TestCase):
         """
         # Setup test
         requests_post_mock.side_effect = exception_class
-        with open('test_last_runs.csv', 'w') as last_runs:
+        with open('test_last_runs.csv', mode='w', encoding="utf-8") as last_runs:
             last_runs.write(CSV_FILE)
 
         # write out the lastruns.txt file that would usually be on the archive
-        with open('lastrun_wish.txt', 'w') as lastrun_wish:
+        with open('lastrun_wish.txt', mode='w', encoding="utf-8") as lastrun_wish:
             lastrun_wish.write(LASTRUN_WISH_TXT)
 
         # Perform test
@@ -207,7 +209,7 @@ class TestRunDetection(TestCase):
         requests_post_mock.asssert_called_once()
 
         # Read the CSV and ensure it has been updated
-        with open('test_last_runs.csv') as csv_file:
+        with open('test_last_runs.csv', encoding="utf-8") as csv_file:
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
                 if row:  # Avoid the empty rows
@@ -231,11 +233,11 @@ class TestRunDetection(TestCase):
         """
         # Setup test
         requests_post_mock.side_effect = exception_class
-        with open('test_last_runs.csv', 'w') as last_runs:
+        with open('test_last_runs.csv', mode='w', encoding="utf-8") as last_runs:
             last_runs.write(CSV_FILE)
 
         # write out the lastruns.txt file that would usually be on the archive
-        with open('lastrun_wish.txt', 'w') as lastrun_wish:
+        with open('lastrun_wish.txt', mode='w', encoding="utf-8") as lastrun_wish:
             lastrun_wish.write(LASTRUN_WISH_TXT)
 
         # Perform test
@@ -243,7 +245,7 @@ class TestRunDetection(TestCase):
         requests_post_mock.asssert_called_once()
 
         # Read the CSV and ensure it has been updated
-        with open('test_last_runs.csv') as csv_file:
+        with open('test_last_runs.csv', encoding="utf-8") as csv_file:
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
                 if row:  # Avoid the empty rows
@@ -265,11 +267,11 @@ class TestRunDetection(TestCase):
         The request to the teams API does not raise an exception in this test, i.e. the success path.
         """
         # Setup test
-        with open('test_last_runs.csv', 'w') as last_runs:
+        with open('test_last_runs.csv', mode='w', encoding="utf-8") as last_runs:
             last_runs.write(CSV_FILE)
 
         # write out the lastruns.txt file that would usually be on the archive
-        with open('lastrun_wish.txt', 'w') as lastrun_wish:
+        with open('lastrun_wish.txt', mode='w', encoding="utf-8") as lastrun_wish:
             lastrun_wish.write(LASTRUN_WISH_TXT)
 
         # Perform test
@@ -277,7 +279,7 @@ class TestRunDetection(TestCase):
         requests_post_mock.asssert_called_once()
 
         # Read the CSV and ensure it has been updated
-        with open('test_last_runs.csv') as csv_file:
+        with open('test_last_runs.csv', encoding="utf-8") as csv_file:
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
                 if row:  # Avoid the empty rows
@@ -299,5 +301,5 @@ class TestRunDetection(TestCase):
     @staticmethod
     @patch('autoreduce_run_detection.run_detection.update_last_runs')
     def test_main_lock_timeout(_):
-        with FileLock('{}.lock'.format(LOCAL_CACHE_LOCATION)):
+        with FileLock(f'{LOCAL_CACHE_LOCATION}.lock'):
             main()
