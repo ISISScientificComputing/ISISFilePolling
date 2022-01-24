@@ -44,6 +44,7 @@ class InstrumentMonitor:
     """
     Checks the ISIS archive for new runs on an instrument and submits them to ActiveMQ
     """
+
     def __init__(self,
                  instrument_name: str,
                  last_run_file: str = "",
@@ -65,10 +66,10 @@ class InstrumentMonitor:
         Returns:
             Last run on the instrument as a string
         """
-        with open(self.last_run_file, 'r') as last_run:
+        with open(self.last_run_file, mode='r', encoding="utf-8") as last_run:
             line_parts = last_run.readline().split()
             if len(line_parts) != 3:
-                raise InstrumentMonitorError("Unexpected last run file format for '{}'".format(self.last_run_file))
+                raise InstrumentMonitorError(f"Unexpected last run file format for '{self.last_run_file}'")
         return line_parts
 
     def submit_runs(self, start_run, end_run) -> Response:
@@ -147,7 +148,7 @@ def update_last_runs(csv_name):
     """
     # Loop over instruments
     output = []
-    with open(csv_name, 'r') as csv_file:
+    with open(csv_name, mode='r', encoding="utf-8") as csv_file:
         csv_reader = csv.reader(csv_file)
         for row in csv_reader:
             LOGGING.info("Processing instrument %s with last run %i", row[0], int(row[1]))
@@ -166,7 +167,7 @@ def update_last_runs(csv_name):
             output.append(row)
 
     # Write any changes to the CSV
-    with open(csv_name, 'w', newline='') as csv_file:
+    with open(csv_name, mode='w', encoding="utf-8", newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
         for row in output:
             csv_writer.writerow(row)
@@ -179,10 +180,11 @@ def main():
     # Acquire a lock on the last runs CSV file to prevent access
     # by other instances of this script
     try:
-        with FileLock("{}.lock".format(LOCAL_CACHE_LOCATION), timeout=1):
+        with FileLock(f"{LOCAL_CACHE_LOCATION}.lock", timeout=1):
             update_last_runs(LOCAL_CACHE_LOCATION)
     except Timeout:
-        LOGGING.error("Error acquiring lock on last runs CSV." " There may be another instance running.")
+        LOGGING.error("Error acquiring lock on last runs CSV."
+                      " There may be another instance running.")
 
 
 if __name__ == '__main__':
