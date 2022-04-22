@@ -8,6 +8,7 @@ Unit tests for run_detection
 """
 import csv
 import os
+from pathlib import Path
 from unittest.mock import Mock, patch, call
 from unittest import TestCase
 from requests.exceptions import RequestException, ConnectionError  # pylint:disable=redefined-builtin
@@ -15,7 +16,7 @@ from requests.exceptions import RequestException, ConnectionError  # pylint:disa
 from filelock import FileLock
 from parameterized import parameterized
 
-from autoreduce_run_detection.run_detection import InstrumentMonitor, InstrumentMonitorError, update_last_runs, main
+from autoreduce_run_detection.run_detection import InstrumentMonitor, InstrumentMonitorError, create_new_csv, new_csv_data, update_last_runs, main
 from autoreduce_run_detection.settings import AUTOREDUCE_API_URL, LOCAL_CACHE_LOCATION
 
 # pylint:disable=abstract-class-instantiated
@@ -53,7 +54,6 @@ class DataHolder:
     """
     Small helper class to represent expected nexus data format
     """
-
     def __init__(self, data):
         self.data = data
 
@@ -77,7 +77,6 @@ class MockResponse:
 
 
 class TestRunDetection(TestCase):
-
     def tearDown(self):
         if os.path.isfile('test_lastrun.txt'):
             os.remove('test_lastrun.txt')
@@ -292,11 +291,28 @@ class TestRunDetection(TestCase):
         assert teams_url in requests_post_mock.call_args[0]
 
     @staticmethod
+    @patch.dict(os.environ, {"SUPPORTED_INSTRUMENTS": "TESTINSTRUMENT"})
+    @patch('autoreduce_run_detection.run_detection.create_new_csv')
+    @patch('autoreduce_run_detection.run_detection.csv.writer')
+    def test_create_csv_file(create_new_csv_mock, csv_writer_mock):
+        """
+        Test creating a csv file.
+        """
+        create_new_csv(LOCAL_CACHE_LOCATION)
+        create_new_csv_mock.assert_called_once()
+        csv_writer_mock.assert_called_with(new_csv_data(instrument="TESTINSTRUMENT"))
+
+    @staticmethod
     @patch('autoreduce_run_detection.run_detection.update_last_runs')
     def test_main(update_last_runs_mock):
-        main()
-        update_last_runs_mock.assert_called_with(LOCAL_CACHE_LOCATION)
-        update_last_runs_mock.assert_called_once()
+        """
+        Test the main function.
+        """
+        with patch.object(Path, 'is_file') as mock_exists:
+            mock_exists.return_value = True
+            main()
+            update_last_runs_mock.assert_called_with(LOCAL_CACHE_LOCATION)
+            update_last_runs_mock.assert_called_once()
 
     @staticmethod
     @patch('autoreduce_run_detection.run_detection.update_last_runs')
