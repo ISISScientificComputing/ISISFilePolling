@@ -55,6 +55,7 @@ class DataHolder:
     """
     Small helper class to represent expected nexus data format
     """
+
     def __init__(self, data):
         self.data = data
 
@@ -78,6 +79,7 @@ class MockResponse:
 
 
 class TestRunDetection(TestCase):
+
     def tearDown(self):
         if os.path.isfile('test_lastrun.txt'):
             os.remove('test_lastrun.txt')

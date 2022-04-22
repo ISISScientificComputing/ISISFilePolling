@@ -46,6 +46,7 @@ class InstrumentMonitor:
     """
     Checks the ISIS archive for new runs on an instrument and submits them to ActiveMQ
     """
+
     def __init__(self,
                  instrument_name: str,
                  last_run_file: str = "",
@@ -223,7 +224,8 @@ def main():
         with FileLock(f"{LOCAL_CACHE_LOCATION}.lock", timeout=1):
             update_last_runs(LOCAL_CACHE_LOCATION)
     except Timeout:
-        LOGGING.error("Error acquiring lock on last runs CSV." " There may be another instance running.")
+        LOGGING.error("Error acquiring lock on last runs CSV."
+                      " There may be another instance running.")
 
 
 if __name__ == '__main__':
