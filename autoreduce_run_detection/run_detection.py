@@ -186,6 +186,7 @@ def create_new_csv(csv_name):
     with open(csv_name, mode='w', encoding="utf-8", newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
         for instrument in supported_instruments:
+            LOGGING.info("Creating initial csv row for instrument %s", instrument)
             csv_writer.writerow(new_csv_data(instrument))
 
 
