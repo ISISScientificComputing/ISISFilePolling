@@ -9,7 +9,7 @@ Unit tests for run_detection
 import csv
 import os
 from pathlib import Path
-from unittest.mock import Mock, patch, call
+from unittest.mock import Mock, mock_open, patch, call
 from unittest import TestCase
 from requests.exceptions import RequestException, ConnectionError  # pylint:disable=redefined-builtin
 
@@ -292,18 +292,18 @@ class TestRunDetection(TestCase):
 
     @staticmethod
     @patch.dict(os.environ, {"SUPPORTED_INSTRUMENTS": "WISH"})
-    @patch('autoreduce_run_detection.run_detection.create_new_csv')
     @patch('autoreduce_run_detection.run_detection.InstrumentMonitor.read_instrument_last_run')
     @patch('autoreduce_run_detection.run_detection.csv.writer')
-    def test_create_csv_file(csv_writer_mock, read_instrument_last_run_mock, create_new_csv_mock):
+    def test_create_csv_file(csv_writer_mock, read_instrument_last_run_mock):
         """
         Test creating a csv file.
         """
         csv_location = Path(LOCAL_CACHE_LOCATION)
         read_instrument_last_run_mock.return_value = ['WISH', '00044733', '0']
-        create_new_csv(csv_location)
-        create_new_csv_mock.assert_called_once()
-        csv_writer_mock.assert_called_with(new_csv_data(instrument="WISH"))
+        with patch('builtins.open', mock_open()) as m_open:
+            create_new_csv(csv_location)
+            m_open.assert_called_once_with(csv_location, mode='w', encoding="utf-8", newline='')
+            csv_writer_mock.assert_called_once()
 
     @staticmethod
     @patch('autoreduce_run_detection.run_detection.update_last_runs')
