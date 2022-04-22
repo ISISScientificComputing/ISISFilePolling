@@ -180,6 +180,7 @@ def create_new_csv(csv_name):
     """
     csv_name.touch(exist_ok=True)
     supported_instruments = os.environ['SUPPORTED_INSTRUMENTS'].split(',')
+    LOGGING.debug("Supported instruments: %s", supported_instruments)
 
     with open(csv_name, mode='w', encoding="utf-8", newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
