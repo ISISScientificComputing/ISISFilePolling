@@ -16,7 +16,8 @@ from requests.exceptions import RequestException, ConnectionError  # pylint:disa
 from filelock import FileLock
 from parameterized import parameterized
 
-from autoreduce_run_detection.run_detection import InstrumentMonitor, InstrumentMonitorError, create_new_csv, new_csv_data, update_last_runs, main
+from autoreduce_run_detection.run_detection import (InstrumentMonitor, InstrumentMonitorError, create_new_csv,
+                                                    update_last_runs, main)
 from autoreduce_run_detection.settings import AUTOREDUCE_API_URL, LOCAL_CACHE_LOCATION
 
 # pylint:disable=abstract-class-instantiated
