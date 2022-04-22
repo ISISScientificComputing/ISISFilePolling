@@ -300,7 +300,7 @@ class TestRunDetection(TestCase):
         Test creating a csv file.
         """
         csv_location = Path(LOCAL_CACHE_LOCATION)
-        new_csv_data_mock.last_run_file = 'test_lastrun.txt'
+        new_csv_data_mock.last_run_file.return_value = 'test_lastrun.txt'
         create_new_csv(csv_location)
         create_new_csv_mock.assert_called_once()
         csv_writer_mock.assert_called_with(new_csv_data(instrument="WISH"))
