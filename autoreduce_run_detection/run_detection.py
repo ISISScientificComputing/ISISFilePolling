@@ -11,7 +11,9 @@ sends them off to the autoreduction service.
 import copy
 import csv
 import logging
+import os
 from typing import Optional
+from pathlib import Path
 
 from filelock import FileLock, Timeout
 import requests
@@ -44,7 +46,6 @@ class InstrumentMonitor:
     """
     Checks the ISIS archive for new runs on an instrument and submits them to ActiveMQ
     """
-
     def __init__(self,
                  instrument_name: str,
                  last_run_file: str = "",
@@ -173,18 +174,55 @@ def update_last_runs(csv_name):
             csv_writer.writerow(row)
 
 
+def create_new_csv(csv_name):
+    """
+    Create a new CSV file with the instrument name and last run
+    """
+    csv_name.touch(exist_ok=True)
+    supported_instruments = os.environ['SUPPORTED_INSTRUMENTS'].split(',')
+
+    with open(csv_name, mode='w', encoding="utf-8", newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        for instrument in supported_instruments:
+            csv_writer.writerow(new_csv_data(instrument))
+
+
+def new_csv_data(instrument):
+    """
+    Create a new row for the CSV file
+    """
+    last_run_file = f'/isis/NDX{instrument}/Instrument/logs/lastrun.txt'
+    summary_file = f'/isis/NDX{instrument}/Instrument/logs/journal/summary.txt'
+    data_dir = f'/isis/NDX{instrument}/Instrument/data'
+    file_ext = '.nxs'
+    last_run = InstrumentMonitor(instrument_name=instrument,
+                                 last_run_file=last_run_file,
+                                 summary_file=summary_file,
+                                 data_dir=data_dir,
+                                 file_ext=file_ext).read_instrument_last_run()[1]
+    return [instrument, last_run, last_run_file, summary_file, data_dir, file_ext]
+
+
 def main():
     """
     Ingestion Entry point
     """
+
+    # Create Path object for the last runs CSV file
+    local_lastruns = Path(LOCAL_CACHE_LOCATION)
+
+    # Create last runs CSV file if it doesn't exist
+    if not local_lastruns.is_file():
+        LOGGING.info("Creating last runs CSV file")
+        create_new_csv(local_lastruns)
+
     # Acquire a lock on the last runs CSV file to prevent access
     # by other instances of this script
     try:
         with FileLock(f"{LOCAL_CACHE_LOCATION}.lock", timeout=1):
             update_last_runs(LOCAL_CACHE_LOCATION)
     except Timeout:
-        LOGGING.error("Error acquiring lock on last runs CSV."
-                      " There may be another instance running.")
+        LOGGING.error("Error acquiring lock on last runs CSV." " There may be another instance running.")
 
 
 if __name__ == '__main__':
