@@ -298,7 +298,8 @@ class TestRunDetection(TestCase):
         """
         Test creating a csv file.
         """
-        create_new_csv(LOCAL_CACHE_LOCATION)
+        csv_location = Path(LOCAL_CACHE_LOCATION)
+        create_new_csv(csv_location)
         create_new_csv_mock.assert_called_once()
         csv_writer_mock.assert_called_with(new_csv_data(instrument="TESTINSTRUMENT"))
 
@@ -317,5 +318,7 @@ class TestRunDetection(TestCase):
     @staticmethod
     @patch('autoreduce_run_detection.run_detection.update_last_runs')
     def test_main_lock_timeout(_):
-        with FileLock(f'{LOCAL_CACHE_LOCATION}.lock'):
-            main()
+        with patch.object(Path, 'is_file') as mock_exists:
+            mock_exists.return_value = True
+            with FileLock(f'{LOCAL_CACHE_LOCATION}.lock'):
+                main()
