@@ -294,8 +294,8 @@ class TestRunDetection(TestCase):
     @patch.dict(os.environ, {"SUPPORTED_INSTRUMENTS": "WISH"})
     @patch('autoreduce_run_detection.run_detection.create_new_csv')
     @patch('autoreduce_run_detection.run_detection.InstrumentMonitor.read_instrument_last_run')
-    @patch('autoreduce_run_detection.run_detection.csv.writer.writerow')
-    def test_create_csv_file(create_new_csv_mock, read_instrument_last_run_mock, csv_writer_mock):
+    @patch('autoreduce_run_detection.run_detection.csv.writer')
+    def test_create_csv_file(csv_writer_mock, read_instrument_last_run_mock, create_new_csv_mock):
         """
         Test creating a csv file.
         """
