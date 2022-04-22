@@ -291,17 +291,19 @@ class TestRunDetection(TestCase):
         assert teams_url in requests_post_mock.call_args[0]
 
     @staticmethod
-    @patch.dict(os.environ, {"SUPPORTED_INSTRUMENTS": "TESTINSTRUMENT"})
+    @patch.dict(os.environ, {"SUPPORTED_INSTRUMENTS": "WISH"})
     @patch('autoreduce_run_detection.run_detection.create_new_csv')
+    @patch('autoreduce_run_detection.run_detection.new_csv_data')
     @patch('autoreduce_run_detection.run_detection.csv.writer')
-    def test_create_csv_file(create_new_csv_mock, csv_writer_mock):
+    def test_create_csv_file(create_new_csv_mock, new_csv_data_mock, csv_writer_mock):
         """
         Test creating a csv file.
         """
         csv_location = Path(LOCAL_CACHE_LOCATION)
+        new_csv_data_mock.last_run_file = 'test_lastrun.txt'
         create_new_csv(csv_location)
         create_new_csv_mock.assert_called_once()
-        csv_writer_mock.assert_called_with(new_csv_data(instrument="TESTINSTRUMENT"))
+        csv_writer_mock.assert_called_with(new_csv_data(instrument="WISH"))
 
     @staticmethod
     @patch('autoreduce_run_detection.run_detection.update_last_runs')
