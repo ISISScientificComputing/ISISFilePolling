@@ -8,14 +8,16 @@ Unit tests for run_detection
 """
 import csv
 import os
-from unittest.mock import Mock, patch, call
+from pathlib import Path
+from unittest.mock import Mock, mock_open, patch, call
 from unittest import TestCase
 from requests.exceptions import RequestException, ConnectionError  # pylint:disable=redefined-builtin
 
 from filelock import FileLock
 from parameterized import parameterized
 
-from autoreduce_run_detection.run_detection import InstrumentMonitor, InstrumentMonitorError, update_last_runs, main
+from autoreduce_run_detection.run_detection import (InstrumentMonitor, InstrumentMonitorError, create_new_csv,
+                                                    update_last_runs, main)
 from autoreduce_run_detection.settings import AUTOREDUCE_API_URL, LOCAL_CACHE_LOCATION
 
 # pylint:disable=abstract-class-instantiated
@@ -292,14 +294,36 @@ class TestRunDetection(TestCase):
         assert teams_url in requests_post_mock.call_args[0]
 
     @staticmethod
+    @patch.dict(os.environ, {"SUPPORTED_INSTRUMENTS": "WISH"})
+    @patch('autoreduce_run_detection.run_detection.InstrumentMonitor.read_instrument_last_run')
+    @patch('autoreduce_run_detection.run_detection.csv.writer')
+    def test_create_csv_file(csv_writer_mock, read_instrument_last_run_mock):
+        """
+        Test creating a csv file.
+        """
+        csv_location = Path(LOCAL_CACHE_LOCATION)
+        read_instrument_last_run_mock.return_value = ['WISH', '00044733', '0']
+        with patch('builtins.open', mock_open()) as m_open:
+            create_new_csv(csv_location)
+            m_open.assert_called_once_with(csv_location, mode='w', encoding="utf-8", newline='')
+            csv_writer_mock.assert_called_once()
+
+    @staticmethod
     @patch('autoreduce_run_detection.run_detection.update_last_runs')
     def test_main(update_last_runs_mock):
-        main()
-        update_last_runs_mock.assert_called_with(LOCAL_CACHE_LOCATION)
-        update_last_runs_mock.assert_called_once()
+        """
+        Test the main function.
+        """
+        with patch.object(Path, 'is_file') as mock_exists:
+            mock_exists.return_value = True
+            main()
+            update_last_runs_mock.assert_called_with(LOCAL_CACHE_LOCATION)
+            update_last_runs_mock.assert_called_once()
 
     @staticmethod
     @patch('autoreduce_run_detection.run_detection.update_last_runs')
     def test_main_lock_timeout(_):
-        with FileLock(f'{LOCAL_CACHE_LOCATION}.lock'):
-            main()
+        with patch.object(Path, 'is_file') as mock_exists:
+            mock_exists.return_value = True
+            with FileLock(f'{LOCAL_CACHE_LOCATION}.lock'):
+                main()

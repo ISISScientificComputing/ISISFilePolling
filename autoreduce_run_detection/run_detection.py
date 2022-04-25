@@ -11,7 +11,9 @@ sends them off to the autoreduction service.
 import copy
 import csv
 import logging
+import os
 from typing import Optional
+from pathlib import Path
 
 from filelock import FileLock, Timeout
 import requests
@@ -173,10 +175,50 @@ def update_last_runs(csv_name):
             csv_writer.writerow(row)
 
 
+def create_new_csv(csv_name):
+    """
+    Create a new CSV file with the instrument name and last run
+    """
+    csv_name.touch(exist_ok=True)
+    supported_instruments = os.environ['SUPPORTED_INSTRUMENTS'].split(',')
+    LOGGING.debug("Supported instruments: %s", supported_instruments)
+
+    with open(csv_name, mode='w', encoding="utf-8", newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        for instrument in supported_instruments:
+            LOGGING.info("Creating initial csv row for instrument %s", instrument)
+            csv_writer.writerow(new_csv_data(instrument))
+
+
+def new_csv_data(instrument):
+    """
+    Create a new row for the CSV file
+    """
+    last_run_file = f'/isis/NDX{instrument}/Instrument/logs/lastrun.txt'
+    summary_file = f'/isis/NDX{instrument}/Instrument/logs/journal/summary.txt'
+    data_dir = f'/isis/NDX{instrument}/Instrument/data'
+    file_ext = '.nxs'
+    last_run = InstrumentMonitor(instrument_name=instrument,
+                                 last_run_file=last_run_file,
+                                 summary_file=summary_file,
+                                 data_dir=data_dir,
+                                 file_ext=file_ext).read_instrument_last_run()[1]
+    return [instrument, last_run, last_run_file, summary_file, data_dir, file_ext]
+
+
 def main():
     """
     Ingestion Entry point
     """
+
+    # Create Path object for the last runs CSV file
+    local_lastruns = Path(LOCAL_CACHE_LOCATION)
+
+    # Create last runs CSV file if it doesn't exist
+    if not local_lastruns.is_file():
+        LOGGING.info("Creating last runs CSV file")
+        create_new_csv(local_lastruns)
+
     # Acquire a lock on the last runs CSV file to prevent access
     # by other instances of this script
     try:
