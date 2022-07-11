@@ -7,7 +7,7 @@ name = "autoreduce-run-detection"
 version = "22.0.0.dev8"
 description = "A service to discover and ingest new files produced by the ISIS neutron and muon facility"
 license = { text = "GNU General Public License" }
-classifiers = ["Framework :: Django", "Programming Language :: Python :: 3"]
+classifiers = ["Programming Language :: Python :: 3"]
 dependencies = ['autoreduce_utils>=22.0.0.dev7', 'filelock', 'requests']
 
 [project.urls]
