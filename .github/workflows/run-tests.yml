@@ -1,5 +1,5 @@
 name: Tests
-on: [ push ]
+on: [push]
 
 jobs:
   pytest:
@@ -7,14 +7,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        python-version: ["3.8"]
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Python 3.8
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python-version }}
 
       - uses: actions/cache@v2
         with:
@@ -39,13 +41,14 @@ jobs:
           fail_ci_if_error: true
           verbose: true
 
-
   dependency-check:
     name: Dependency-Check
     runs-on: ubuntu-latest
     container: centos/python-38-centos7
     strategy:
       fail-fast: false
+      matrix:
+        python-version: ["3.8"]
 
     steps:
       - uses: actions/checkout@v2
@@ -60,7 +63,6 @@ jobs:
       - name: Pip install
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
           pip install -e .
 
   Inspection:
@@ -68,14 +70,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        python-version: ["3.8"]
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Python 3.8
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python-version }}
 
       - uses: actions/cache@v2
         with:
@@ -91,4 +95,3 @@ jobs:
       - uses: autoreduction/autoreduce-actions/code_inspection@main
         with:
           package_name: autoreduce_run_detection
-

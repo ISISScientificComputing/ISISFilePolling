@@ -1,0 +1,49 @@
+[build-system]
+requires = ["wheel", "setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autoreduce-run-detection"
+version = "22.0.0.dev8"
+description = "A service to discover and ingest new files produced by the ISIS neutron and muon facility"
+license = { text = "GNU General Public License" }
+classifiers = ["Programming Language :: Python :: 3"]
+dependencies = ['autoreduce_utils>=22.0.0.dev7', 'filelock', 'requests']
+
+[project.urls]
+"Repository" = "https://github.com/autoreduction/run-detection"
+"Wiki" = "https://github.com/autoreduction/queue-processor/wiki"
+
+[project.scripts]
+autoreduce-run-detection = "autoreduce_run_detection.run_detection:main"
+
+[tool.setuptools]
+packages = ["autoreduce_run_detection"]
+
+[tool.yapf]
+column_limit = 120
+based_on_style = "pep8"
+
+[tool.yapfignore]
+ignore_patterns = ["setup.py", "**/migrations", "venv/", "venv3/"]
+
+[tool.pylint.MAIN]
+extension-pkg-whitelist = ["pydantic"]
+disable = [
+    "R0904", # too-many-public-methods
+    "R0902", # too-many-instance-attributes
+    "R0903", # too-few-public-methods
+    "R1705", # no-else-return
+    "C0114", # missing-module-docstring
+    "C0115", # missing-class-docstring
+]
+ignore = [".git", "migrations"]
+
+[tool.pylint.FORMAT]
+max-line-length = 120
+
+[tool.pylint.DESIGN]
+max-args = 8
+
+[tool.pylint.SIMILARITIES]
+min-similarity-lines = 10
