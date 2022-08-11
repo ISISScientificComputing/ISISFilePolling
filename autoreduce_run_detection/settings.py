@@ -13,9 +13,9 @@ from autoreduce_utils.settings import AUTOREDUCE_HOME_ROOT
 LOCAL_CACHE_LOCATION = os.path.join(AUTOREDUCE_HOME_ROOT, 'last_runs.csv')
 
 if "AUTOREDUCTION_PRODUCTION" in os.environ:
-    AUTOREDUCE_API_URL = os.getenv('AUTOREDUCE_API_URL', "https://reduce.isis.cclrc.ac.uk/api/runs/{instrument}")
+    AUTOREDUCE_API_URL = os.getenv('AUTOREDUCE_API_URL', "https://reduce.isis.cclrc.ac.uk/api")
 else:
-    AUTOREDUCE_API_URL = os.getenv('AUTOREDUCE_API_URL', "http://127.0.0.1:8000/api/runs/{instrument}")
+    AUTOREDUCE_API_URL = os.getenv('AUTOREDUCE_API_URL', "http://127.0.0.1:8000/api")
 
 AUTOREDUCE_TOKEN = os.environ.get('AUTOREDUCE_TOKEN')
 
