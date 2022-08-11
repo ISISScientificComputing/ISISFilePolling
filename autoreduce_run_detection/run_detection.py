@@ -86,11 +86,8 @@ class InstrumentMonitor:
         runs = list(range(start_run, end_run))
         runs_str = ",".join([str(run) for run in runs])
         # Check to see if the last run exists, if not then raise an exception
-        LOGGING.info(
-            "Submitting runs in range %s for %s",
-            runs_str,
-            self.instrument_name,
-        )
+        LOGGING.info("Submitting runs in range %s for %s to %s", runs_str, self.instrument_name,
+                     f"{AUTOREDUCE_API_URL}/runs/{self.instrument_name}")
         try:
             response = requests.post(
                 f"{AUTOREDUCE_API_URL}/runs/{self.instrument_name}",
