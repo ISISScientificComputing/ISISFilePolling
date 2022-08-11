@@ -93,7 +93,7 @@ class InstrumentMonitor:
         )
         try:
             response = requests.post(
-                AUTOREDUCE_API_URL.format(instrument=self.instrument_name),
+                f"{AUTOREDUCE_API_URL}/runs/{self.instrument_name}",
                 json={
                     "runs": runs,
                     "user_id": 0  # AUTOREDUCTTION_SERVICE user id
