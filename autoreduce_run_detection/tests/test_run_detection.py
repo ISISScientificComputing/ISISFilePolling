@@ -172,7 +172,7 @@ class TestRunDetection(TestCase):
         # Perform test
         update_last_runs('test_last_runs.csv')
         requests_post_mock.assert_called_once()
-        assert requests_post_mock.call_args[0][0] == AUTOREDUCE_API_URL.format(instrument="WISH")
+        assert requests_post_mock.call_args[0][0] == f"{AUTOREDUCE_API_URL}/runs/{'WISH'}"
         assert "json" in requests_post_mock.call_args[1]
         assert "headers" in requests_post_mock.call_args[1]
 
