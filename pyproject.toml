@@ -11,6 +11,9 @@ license = { text = "GNU General Public License" }
 classifiers = ["Programming Language :: Python :: 3"]
 dependencies = ['autoreduce_utils>=22.0.0.dev7', 'filelock', 'requests']
 
+[project.optional-dependencies]
+dev = ["parameterized==0.8.1"]
+
 [project.urls]
 "Repository" = "https://github.com/autoreduction/run-detection"
 "Wiki" = "https://github.com/autoreduction/queue-processor/wiki"
